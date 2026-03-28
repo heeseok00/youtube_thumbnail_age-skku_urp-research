@@ -7,18 +7,102 @@
 유튜브 영상의 썸네일 이미지만으로 타겟 연령대를 구분할 수 있을까요?  
 사전학습된 비전 모델(DINOv2, SigLIP2)로 썸네일 임베딩을 추출하고, 해당 임베딩이 연령대를 얼마나 잘 분리하는지 정량적으로 평가합니다.
 
+---
+
+## 빠른 시작
+
+```bash
+# 1. 레포 클론
+git clone https://github.com/heeseok00/youtube_thumbnail_age-skku_urp-research.git
+cd youtube_thumbnail_age-skku_urp-research
+
+# 2. 환경 복원
+conda env create -f ytvenv.yaml
+conda activate ytvenv
+
+# 3. YouTube API 데이터 준비 (아래 데이터 준비 섹션 참고)
+
+# 4. 노트북 실행
+jupyter notebook 채널_시각화.ipynb
+```
+
+---
+
 ## 데이터셋
+
+### 포함된 파일
+
+| 파일 | 설명 | 크기 |
+|---|---|---|
+| `YT_channelsList_v1.csv` | 채널별 타겟 연령대 레이블 (수동 구성) | 54행 |
+
+`YT_channelsList_v1.csv` 구조:
+
+```
+channel_name, channel_id, target_age, vling_url
+Queen Solmee, UCahWSp7..., 18-24, https://vling.net/...
+...
+```
+
+연령대 6구간: `18-24` / `25-34` / `35-44` / `45-54` / `55-64` / `65+` (각 구간당 약 9개 채널)
+
+### 직접 준비해야 하는 파일
 
 | 파일 | 설명 |
 |---|---|
-| `YT_dataset_v1.csv` | 영상별 메타데이터 + 썸네일 경로 (270개 영상, 54개 채널) |
-| `YT_channelsList_v1.csv` | 채널별 타겟 연령대 레이블 (`18-24` ~ `65+`) |
+| `YT_dataset_v1.csv` | 영상별 메타데이터 + 썸네일 경로 (YouTube Data API로 수집) |
+| `thumbnails/` | 썸네일 이미지 (Step 1.5에서 자동 다운로드) |
 
-**연령대별 영상 수 (전체):**
+#### `YT_dataset_v1.csv` 수집 방법
+
+YouTube Data API v3를 사용하여 `YT_channelsList_v1.csv`에 있는 채널들의 영상 목록을 수집합니다.
+
+필요한 컬럼:
+
+```
+channel_name, channel_id, video_id, title, description,
+published_at, tags, duration, thumbnail_url, thumbnail_path
+```
+
+`thumbnail_path`는 `thumbnails/{channel_name}/{video_id}.jpg` 형식으로 지정합니다.
+
+> YouTube Data API 키 발급: [Google Cloud Console](https://console.cloud.google.com/) → API 및 서비스 → YouTube Data API v3 활성화
+
+**연령대별 영상 수 (전체 270개 기준):**
 
 | 18-24 | 25-34 | 35-44 | 45-54 | 55-64 | 65+ |
 |---|---|---|---|---|---|
 | 50 | 50 | 25 | 45 | 50 | 50 |
+
+---
+
+## 환경 설정
+
+### 요구사항
+
+- [Miniconda](https://docs.conda.io/en/latest/miniconda.html) 또는 Anaconda
+- Python 3.14 (ytvenv.yaml에 명시)
+- (선택) CUDA GPU — CPU로도 동작하나 Step 2 추출 속도 차이 있음
+
+### conda 환경 복원
+
+```bash
+conda env create -f ytvenv.yaml
+conda activate ytvenv
+```
+
+### 주요 패키지
+
+| 패키지 | 용도 |
+|---|---|
+| `torch` + `transformers` | 비전 모델 추론 (DINOv2, SigLIP2) |
+| `umap-learn` | 차원 축소 |
+| `scikit-learn` | 평가 지표, t-SNE, 선형 탐침 |
+| `Pillow` + `numpy` | 이미지 로드 및 배열 연산 |
+| `matplotlib` | 시각화 |
+| `pandas` | 결과 확인 |
+
+---
 
 ## 파이프라인
 
@@ -48,6 +132,12 @@ Step 4    visualize  → UMAP / t-SNE 시각화 + 최근접 이웃 분석
 CSV의 `thumbnail_url`에서 이미지를 받아 `thumbnail_path` 위치에 저장합니다.  
 이미 다운로드된 파일은 건너뛰므로 중단 후 재실행해도 안전합니다.
 
+```
+thumbnails/
+└── {channel_name}/
+    └── {video_id}.jpg
+```
+
 ### Step 2 — 임베딩 추출
 
 HuggingFace 사전학습 모델로 L2 정규화된 이미지 임베딩을 추출합니다:
@@ -58,6 +148,8 @@ HuggingFace 사전학습 모델로 L2 정규화된 이미지 임베딩을 추출
 | `siglip2-base` | `google/siglip2-base-patch16-224` | 768 |
 
 모델별 출력: `embeddings.npy` (N × 768), `metadata.csv`, `run_info.json`
+
+> 모델은 최초 실행 시 HuggingFace Hub에서 자동 다운로드됩니다 (각 약 300~400MB).
 
 ### Step 3 — 모델 평가
 
@@ -88,11 +180,14 @@ UMAP으로 2차원 축소 후 네 가지 지표로 모델을 비교합니다:
 - `tsne_target_age_perp{5,15,30}.png`
 - `nearest_neighbor_examples.csv`
 
+---
+
 ## 디렉터리 구조
 
 ```
 .
 ├── 채널_시각화.ipynb              # 메인 파이프라인 노트북
+├── YT_channelsList_v1.csv         # 채널-연령대 레이블 (포함)
 ├── ytvenv.yaml                    # conda 환경 설정
 ├── .gitignore
 ├── artifacts/
@@ -107,43 +202,11 @@ UMAP으로 2차원 축소 후 네 가지 지표로 모델을 비교합니다:
 │   └── visualizations/
 │       ├── umap_target_age.png
 │       └── nearest_neighbor_examples.csv
-└── (데이터 파일은 .gitignore로 제외)
+├── YT_dataset_v1.csv              # ← .gitignore (직접 수집 필요)
+└── thumbnails/                    # ← .gitignore (Step 1.5에서 자동 생성)
 ```
 
-> `embeddings.npy`, `thumbnails/`, 원본 CSV 데이터셋은 레포에 포함되지 않습니다.
-
-## 환경 설정
-
-**1. conda 환경 복원**
-
-```bash
-conda env create -f ytvenv.yaml
-conda activate ytvenv
-```
-
-**2. 프로젝트 루트에 데이터 파일 배치**
-
-```
-YT_dataset_v1.csv
-YT_channelsList_v1.csv
-```
-
-**3. 노트북 셀 순서대로 실행**
-
-```
-설정 셀 → Step 1 → Step 1.5 → Step 2 → Step 3 → Step 4
-```
-
-## 주요 의존성
-
-| 패키지 | 용도 |
-|---|---|
-| `torch` + `transformers` | 비전 모델 추론 |
-| `umap-learn` | 차원 축소 |
-| `scikit-learn` | 평가 지표, t-SNE, 선형 탐침 |
-| `Pillow` + `numpy` | 이미지 로드 및 배열 연산 |
-| `matplotlib` | 시각화 |
-| `pandas` | 결과 확인 |
+---
 
 ## 참고사항
 

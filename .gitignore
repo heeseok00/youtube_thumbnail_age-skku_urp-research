@@ -36,9 +36,9 @@ artifacts/embeddings/**/*.npy
 # artifacts/
 
 # ── 대용량 데이터셋 CSV ───────────────────────────────────────────────────
-# 원본 데이터는 직접 공유 (Git LFS 또는 Drive)
+# YouTube API로 수집한 원본 데이터 (재현하려면 직접 수집 필요)
 YT_dataset_v1.csv
-YT_channelsList_v1.csv
+# YT_channelsList_v1.csv 는 수동 구성 파일이므로 추적 유지
 
 # ── 문서 파일 ────────────────────────────────────────────────────────────
 *.pdf
