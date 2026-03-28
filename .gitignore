@@ -40,6 +40,15 @@ artifacts/embeddings/**/*.npy
 YT_dataset_v1.csv
 YT_channelsList_v1.csv
 
+# ── 문서 파일 ────────────────────────────────────────────────────────────
+*.pdf
+*.hwp
+*.hwpx
+*.doc
+*.docx
+*.ppt
+*.pptx
+
 # ── OS / 에디터 ──────────────────────────────────────────────────────────
 desktop.ini
 Thumbs.db
