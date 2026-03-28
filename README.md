@@ -23,7 +23,7 @@ conda activate ytvenv
 # 3. YouTube API 데이터 준비 (아래 데이터 준비 섹션 참고)
 
 # 4. 노트북 실행
-jupyter notebook 채널_시각화.ipynb
+jupyter notebook thumbnail_age_pipeline.ipynb
 ```
 
 ---
@@ -186,7 +186,7 @@ UMAP으로 2차원 축소 후 네 가지 지표로 모델을 비교합니다:
 
 ```
 .
-├── 채널_시각화.ipynb              # 메인 파이프라인 노트북
+├── thumbnail_age_pipeline.ipynb   # 메인 파이프라인 노트북
 ├── YT_channelsList_v1.csv         # 채널-연령대 레이블 (포함)
 ├── ytvenv.yaml                    # conda 환경 설정
 ├── .gitignore
