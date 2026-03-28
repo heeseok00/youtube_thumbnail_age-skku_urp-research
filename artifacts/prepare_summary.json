@@ -1,0 +1,27 @@
+{
+  "total_rows": 270,
+  "short_auto_count": 111,
+  "nonshort_auto_count": 159,
+  "nonshort_final_count": 159,
+  "manual_label_count": 0,
+  "age_distribution_all": {
+    "18-24": 50,
+    "25-34": 50,
+    "35-44": 25,
+    "45-54": 45,
+    "55-64": 50,
+    "65+": 50
+  },
+  "age_distribution_nonshort_final": {
+    "18-24": 21,
+    "25-34": 25,
+    "35-44": 13,
+    "45-54": 20,
+    "55-64": 37,
+    "65+": 43
+  },
+  "params": {
+    "short_duration_sec": 180,
+    "keyword_regex": "(?i)(?:^|\\s|#)(shorts?|쇼츠)\\b"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "model_dir": "artifacts\\embeddings\\siglip2-base",
+  "n_samples": 158,
+  "embedding_dim": 768,
+  "age_counts": {
+    "18-24": 21,
+    "25-34": 25,
+    "35-44": 13,
+    "45-54": 20,
+    "55-64": 37,
+    "65+": 42
+  },
+  "outputs": {
+    "umap_plot": "artifacts\\visualizations\\umap_target_age.png",
+    "tsne_plots": [
+      "artifacts\\visualizations\\tsne_target_age_perp5.png",
+      "artifacts\\visualizations\\tsne_target_age_perp15.png",
+      "artifacts\\visualizations\\tsne_target_age_perp30.png"
+    ],
+    "nearest_neighbor_examples": "artifacts\\visualizations\\nearest_neighbor_examples.csv"
+  },
+  "params": {
+    "umap_neighbors": 20,
+    "umap_min_dist": 0.1,
+    "tsne_perplexities": [
+      5,
+      15,
+      30
+    ],
+    "nn_top_k": 5
+  }
+}

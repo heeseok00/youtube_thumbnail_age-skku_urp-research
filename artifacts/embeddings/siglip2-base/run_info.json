@@ -1,0 +1,9 @@
+{
+  "alias": "siglip2-base",
+  "model_id": "google/siglip2-base-patch16-224",
+  "device": "cpu",
+  "batch_size": 32,
+  "rows_input": 159,
+  "rows_embedded": 158,
+  "embedding_dim": 768
+}

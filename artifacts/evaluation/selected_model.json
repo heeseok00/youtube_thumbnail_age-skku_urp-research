@@ -1,0 +1,17 @@
+{
+  "selected_model_alias": "siglip2-base",
+  "selection_rule": "silhouette_umap → knn_purity_k10_umap → linear_probe_macro_f1_mean",
+  "best_scores": {
+    "model_alias": "siglip2-base",
+    "n_samples": 158,
+    "embedding_dim": 768,
+    "silhouette_umap": -0.013646505773067474,
+    "knn_purity_k5_umap": 0.5582278481012655,
+    "knn_purity_k10_umap": 0.5215189873417722,
+    "trustworthiness_umap": 0.8581479013990673,
+    "linear_probe_macro_f1_mean": 0.37503490760881153,
+    "linear_probe_macro_f1_seed42": 0.39425410772659353,
+    "linear_probe_macro_f1_seed43": 0.2780284043441938,
+    "linear_probe_macro_f1_seed44": 0.45282221075564727
+  }
+}
