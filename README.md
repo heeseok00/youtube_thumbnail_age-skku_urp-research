@@ -1,233 +1,146 @@
-# YouTube Thumbnail Age Analysis
+# YouTube Thumbnail — 카테고리·채널 임베딩 분석
 
-> **성균관대학교 URP 2026 Spring** — 비전 임베딩을 활용하여 유튜브 썸네일의 연령대별 시각적 스타일 차이를 분석합니다.
-
-## 프로젝트 개요
-
-유튜브 영상의 썸네일 이미지만으로 타겟 연령대를 구분할 수 있을까요?  
-사전학습된 비전 모델(DINOv2, SigLIP2)로 썸네일 임베딩을 추출하고, 해당 임베딩이 연령대를 얼마나 잘 분리하는지 정량적으로 평가합니다.
+> **성균관대학교 URP 2026 Spring**  
+> 썸네일 이미지를 **DINOv2-base**, **SigLIP2-base**로 임베딩하고, **채널 단위**로 묶은 뒤 **UMAP / t-SNE** 및 **K-means**로 구조를 탐색합니다.
 
 ---
 
-## 전체 파이프라인 흐름
+## 프로젝트 개요
+
+- **입력:** 카테고리별 영상·썸네일 메타데이터 CSV (`YT_dataset_{카테고리}.csv`) 및 로컬 썸네일 경로  
+- **임베딩:** 영상(썸네일) 단위 768차원 벡터 → 동일 `channel_id`끼리 **평균** 후 **L2 정규화** → 채널당 1벡터  
+- **시각화:** 채널 벡터에 대한 UMAP·t-SNE(03), K-means 라벨을 색으로 입힌 UMAP(04)  
+- **카테고리(5개):** `health`, `food`, `VLOG`, `society`, `education`
+
+---
+
+## 전체 파이프라인
 
 ```
-00. 연령대 카테고리 선정
-    ↓
-01. 채널 목록 수집      vling.net 크롤링 → YT_channelsList_v1.csv
-    ↓
-02. 영상 데이터 수집     YouTube API → YT_dataset_v1.csv + thumbnails/
-    ↓
-03. 분석 파이프라인      임베딩 추출 → 평가 → 시각화
+00. 카테고리·기준 탐색          → 00.category_selection.ipynb
+01. 채널 후보 수집              → 01.channel_collection.ipynb
+02. YouTube API 데이터·썸네일   → 02.data_collection.py (+ .env API 키)
+03. 임베딩·채널 평균·2D 시각화  → 03.thumbnail_age_pipeline.ipynb
+04. 고차원 K-means·UMAP(색)     → 04_channel_clustering.ipynb
 ```
+
+배치로 5개 카테고리 수집을 연속 실행하려면 [`yt_all_collect.bat`](yt_all_collect.bat)을 사용합니다 (내부에서 `02.data_collection.py` 호출).
 
 ---
 
 ## 빠른 시작
 
 ```bash
-# 1. 레포 클론
 git clone https://github.com/heeseok00/youtube_thumbnail_age-skku_urp-research.git
 cd youtube_thumbnail_age-skku_urp-research
 
-# 2. 환경 복원
 conda env create -f ytvenv.yaml
 conda activate ytvenv
-
-# 3. API 키 설정
-echo "YOUTUBE_API_KEY=발급받은_키_입력" > .env
-
-# 4. 노트북 순서대로 실행
-jupyter notebook
 ```
 
-> API 키 발급: [Google Cloud Console](https://console.cloud.google.com/) → API 및 서비스 → YouTube Data API v3 활성화
+프로젝트 루트에 `.env`를 두고 YouTube API 키를 넣습니다 (`.gitignore` 대상).
+
+```env
+YOUTUBE_API_KEY=발급받은_키
+```
+
+- **GPU:** PyTorch CUDA 빌드 사용 시 임베딩(03 Step 2)이 빠릅니다. `03` 설정 셀에서 `DEVICE = "cuda"` 등으로 지정.  
+- **Hugging Face:** 모델 다운로드 시 rate limit 완화를 위해 `hf auth login` 또는 `HF_TOKEN` 권장.  
+- **Windows:** OpenMP 충돌 완화를 위해 노트북에 `KMP_DUPLICATE_LIB_OK` 설정이 들어가 있습니다. K-means 경고 완화는 `04` 설정 셀의 `OMP_NUM_THREADS`를 참고하세요.
 
 ---
 
-## 노트북 구성
+## 주요 파일
 
-| 번호 | 파일 | 설명 |
-|---|---|---|
-| 00 | `00.category_selection.ipynb` | 연령대 카테고리 기준 탐색 및 선정 |
-| 01 | `01.channel_collection.ipynb` | vling.net에서 채널명·채널 ID 수집 → `YT_channelsList_v1.csv` |
-| 02 | `02.data_collection.ipynb` | YouTube API로 영상 메타데이터·썸네일 수집 → `YT_dataset_v1.csv` |
-| 03 | `03.thumbnail_age_pipeline.ipynb` | 임베딩 추출 / 모델 평가 / 시각화 |
+| 구분 | 파일 | 설명 |
+|------|------|------|
+| 노트북 | `00.category_selection.ipynb` | 카테고리·선정 메모 |
+| 노트북 | `01.channel_collection.ipynb` | 채널 목록 수집 |
+| 스크립트 | `02.data_collection.py` | YouTube Data API v3로 채널별 영상 메타·썸네일 다운로드 |
+| 배치 | `yt_all_collect.bat` | 카테고리별 `02` 실행 예시 |
+| 노트북 | `03.thumbnail_age_pipeline.ipynb` | 준비 → 임베딩 → 채널 평균 → UMAP/t-SNE |
+| 노트북 | `04_channel_clustering.ipynb` | 채널 벡터 K-means(실루엣 k 탐색) + UMAP 색상 플롯 |
+| 환경 | `ytvenv.yaml` | conda 환경 고정 (PyTorch cu128 등은 주석·공식 안내 참고) |
 
----
-
-## 데이터셋
-
-### 레포에 포함된 파일
+### 데이터 CSV (예시 이름)
 
 | 파일 | 설명 |
-|---|---|
-| `YT_channelsList_v1.csv` | 채널별 타겟 연령대 레이블 (수동 구성, 54개 채널) |
-| `artifacts/` | 파이프라인 중간 결과물 (임베딩 메타데이터, 평가 점수, 시각화 이미지 등) |
+|------|------|
+| `YT_ChannelData_{카테고리}_clean.csv` | 수집에 쓰는 채널 목록(정리본) |
+| `YT_dataset_{카테고리}.csv` | 영상·썸네일 경로 등 메인 데이터셋 |
+| `artifacts/{카테고리}/dataset_ready.csv` | 03 Step 1에서 썸네일 파일이 실제 존재하는 행만 필터 |
 
-`YT_channelsList_v1.csv` 구조:
-
-```
-channel_name, channel_id, target_age
-Queen Solmee, UCahWSp7..., 18-24
-...
-```
-
-연령대 6구간: `18-24` / `25-34` / `35-44` / `45-54` / `55-64` / `65+` (각 구간당 약 9개 채널)
-
-### 직접 준비해야 하는 파일
-
-| 파일 | 수집 방법 |
-|---|---|
-| `YT_dataset_v1.csv` | `02.data_collection.ipynb` 실행 |
-| `thumbnails/` | `02.data_collection.ipynb` 실행 (자동 다운로드) |
-
-> 채널 목록을 직접 구성하거나 확장하려면 `01.channel_collection.ipynb`을 먼저 실행하세요.
-
-**연령대별 영상 수 (전체 270개 기준):**
-
-| 18-24 | 25-34 | 35-44 | 45-54 | 55-64 | 65+ |
-|---|---|---|---|---|---|
-| 50 | 50 | 25 | 45 | 50 | 50 |
+썸네일 이미지 폴더(`thumbnails_*` 등)는 용량이 커서 보통 Git에 포함하지 않습니다 (`.gitignore` 참고).
 
 ---
 
-## 환경 설정
+## `03.thumbnail_age_pipeline.ipynb` 단계
 
-### 요구사항
+| 단계 | 내용 | 산출(요약) |
+|------|------|------------|
+| Step 1 | `prepare` | `artifacts/{cat}/dataset_ready.csv` |
+| Step 2 | `extract` | `embeddings/{dinov2-base\|siglip2-base}/embeddings.npy`, `metadata.csv` |
+| Step 3 | `aggregate` | `channel_embeddings.npy`, `channel_metadata.csv` (채널 평균 + L2 정규화) |
+| Step 4 | `visualize` | `visualizations/.../umap_channels.png`, `tsne_channels_perp*.png` |
 
-- [Miniconda](https://docs.conda.io/en/latest/miniconda.html) 또는 Anaconda
-- Python 3.14 (ytvenv.yaml에 명시)
-- (선택) CUDA GPU — CPU로도 동작하나 임베딩 추출 속도 차이 있음
+- 임베딩은 **고차원에서** 채널 평균을 낸 뒤 정규화합니다.  
+- SigLIP2는 이미지 전용 경로(`get_image_features` 등)로 처리합니다.
 
-### conda 환경 복원
+---
+
+## `04_channel_clustering.ipynb`
+
+- 입력: `channel_embeddings.npy` + `channel_metadata.csv` (행 순서 일치)  
+- `K_MIN`~`K_MAX` 범위에서 **실루엣(euclidean)** 이 가장 큰 **k**를 선택해 K-means 라벨 저장  
+- 산출(모델 폴더별): `kmeans_labels_k{k}.csv`, `kmeans_sweep.json`, `kmeans_summary.json`  
+- 선택: `visualizations/{모델}/umap_kmeans_k{k}.png` (같은 채널 벡터로 UMAP 후 라벨 색상)
+
+---
+
+## `artifacts/` 디렉터리 구조 (요약)
+
+```
+artifacts/{카테고리}/
+├── dataset_ready.csv
+├── embeddings/{dinov2-base|siglip2-base}/
+│   ├── embeddings.npy              # Git 제외 (.gitignore)
+│   ├── metadata.csv
+│   ├── channel_embeddings.npy      # Git 제외
+│   ├── channel_metadata.csv
+│   ├── kmeans_labels_k*.csv        # 04 실행 시
+│   ├── kmeans_sweep.json
+│   └── kmeans_summary.json
+└── visualizations/{dinov2-base|siglip2-base}/
+    ├── umap_channels.png
+    ├── tsne_channels_perp*.png
+    └── umap_kmeans_k*.png          # 04 실행 시
+```
+
+대용량 `.npy`는 `.gitignore`로 제외하고, CSV·JSON·PNG 등만 저장소에 올리는 구성을 권장합니다.
+
+---
+
+## `02.data_collection.py` 실행 예
 
 ```bash
-conda env create -f ytvenv.yaml
 conda activate ytvenv
+python 02.data_collection.py --channels-csv YT_ChannelData_Health_clean.csv --output-csv YT_dataset_health.csv --video-count 10
 ```
 
-### API 키 설정
-
-프로젝트 루트에 `.env` 파일을 생성합니다:
-
-```
-YOUTUBE_API_KEY=여기에_발급받은_키_입력
-```
-
-`.env`는 `.gitignore`에 포함되어 있어 레포에 올라가지 않습니다.
-
-### 주요 패키지
-
-| 패키지 | 용도 |
-|---|---|
-| `torch` + `transformers` | 비전 모델 추론 (DINOv2, SigLIP2) |
-| `umap-learn` | 차원 축소 |
-| `scikit-learn` | 평가 지표, t-SNE, 선형 탐침 |
-| `playwright` | vling.net 채널 목록 크롤링 |
-| `google-api-python-client` | YouTube Data API v3 |
-| `python-dotenv` | `.env` API 키 로드 |
-| `Pillow` + `numpy` | 이미지 로드 및 배열 연산 |
-| `matplotlib` | 시각화 |
-| `pandas` | 데이터 처리 |
+옵션은 `python 02.data_collection.py --help`로 확인합니다.
 
 ---
 
-## 분석 파이프라인 상세 (`03.thumbnail_age_pipeline.ipynb`)
+## 참고 링크
 
-```
-Step 1    prepare    → Shorts 필터링, 연령대 레이블 병합
-Step 1.5  download   → YouTube에서 썸네일 이미지 다운로드
-Step 2    extract    → 비전 모델로 임베딩 추출
-Step 3    evaluate   → 모델 간 클러스터링 성능 비교
-Step 4    visualize  → UMAP / t-SNE 시각화 + 최근접 이웃 분석
-```
-
-### Step 1 — 데이터 준비
-
-두 가지 기준으로 Shorts 영상을 필터링합니다:
-
-| 기준 | 규칙 |
-|---|---|
-| 길이 | `duration ≤ 180초` |
-| 키워드 | 제목 / 설명 / 태그에 `Shorts` 또는 `쇼츠` 포함 |
-
-**결과:** 270개 전체 → 111개 Shorts 제거 → **159개** 분석 대상
-
-### Step 2 — 임베딩 추출
-
-HuggingFace 사전학습 모델로 L2 정규화된 이미지 임베딩을 추출합니다:
-
-| Alias | 모델 | 임베딩 차원 |
-|---|---|---|
-| `dinov2-base` | `facebook/dinov2-base` | 768 |
-| `siglip2-base` | `google/siglip2-base-patch16-224` | 768 |
-
-> 모델은 최초 실행 시 HuggingFace Hub에서 자동 다운로드됩니다 (각 약 300~400MB).
-
-### Step 3 — 모델 평가
-
-UMAP으로 2차원 축소 후 네 가지 지표로 모델을 비교합니다:
-
-| 지표 | 설명 |
-|---|---|
-| `silhouette_umap` | 클러스터 응집도·분리도 |
-| `knn_purity_k10_umap` | k-NN 이웃 중 같은 연령대 비율 (k=10) |
-| `trustworthiness_umap` | 원본 고차원 구조가 UMAP에 보존된 정도 |
-| `linear_probe_macro_f1` | 선형 분류기 macro-F1 (3 seed 평균, 채널 그룹 분리) |
-
-**평가 결과:**
-
-| 모델 | Silhouette | kNN Purity k10 | Trustworthiness | Linear Probe F1 |
-|---|---|---|---|---|
-| **siglip2-base** ✓ | -0.014 | **0.522** | 0.858 | **0.375** |
-| dinov2-base | -0.070 | 0.445 | **0.882** | 0.360 |
-
-→ **SigLIP2-base** 선택
-
-### Step 4 — 시각화
-
-연령대별 색상으로 UMAP / t-SNE scatter plot을 생성하고, 최근접 이웃 분석표를 출력합니다.
-
-`artifacts/visualizations/` 출력 파일:
-- `umap_target_age.png`
-- `tsne_target_age_perp{5,15,30}.png`
-- `nearest_neighbor_examples.csv`
+- [YouTube Data API v3](https://developers.google.com/youtube/v3)  
+- [PyTorch 설치 (CUDA)](https://pytorch.org/get-started/locally/)  
+- [Hugging Face Hub — 로그인 / 토큰](https://huggingface.co/docs/huggingface_hub/quick-start#authentication)
 
 ---
 
-## 디렉터리 구조
+## 라이선스·저장소
 
-```
-.
-├── 00.category_selection.ipynb    # 연령대 카테고리 선정
-├── 01.channel_collection.ipynb    # vling.net 채널 목록 수집
-├── 02.data_collection.ipynb       # YouTube API 영상 데이터 수집
-├── 03.thumbnail_age_pipeline.ipynb # 임베딩 추출 / 평가 / 시각화
-├── YT_channelsList_v1.csv         # 채널-연령대 레이블 (포함)
-├── ytvenv.yaml                    # conda 환경 설정
-├── .env                           # API 키 (gitignore, 직접 생성)
-├── .gitignore
-├── artifacts/
-│   ├── dataset_with_flags.csv
-│   ├── dataset_nonshort_final.csv
-│   ├── embeddings/
-│   │   ├── dinov2-base/           # metadata.csv, run_info.json
-│   │   └── siglip2-base/          # metadata.csv, run_info.json
-│   ├── evaluation/
-│   │   ├── model_scores.csv
-│   │   └── selected_model.json
-│   └── visualizations/
-│       ├── umap_target_age.png
-│       └── nearest_neighbor_examples.csv
-├── YT_dataset_v1.csv              # ← .gitignore (02번 노트북으로 수집)
-└── thumbnails/                    # ← .gitignore (02번 노트북에서 자동 생성)
-```
+원격 저장소: `https://github.com/heeseok00/youtube_thumbnail_age-skku_urp-research`  
 
----
-
-## 참고사항
-
-- Shorts 필터링은 자동 판별만 적용된 상태입니다. `artifacts/manual_review_template.csv`를 작성하면 수동 검토 결과를 반영할 수 있습니다.
-- 선형 탐침 평가에서 `GroupShuffleSplit`으로 같은 채널의 영상이 train/test에 동시에 포함되지 않도록 처리하여 데이터 누수를 방지합니다.
-- SigLIP2는 이미지-텍스트 대조 학습 모델로, 구조상 텍스트 입력이 필요합니다. `"thumbnail"` 더미 텍스트를 자동 삽입하며, 실제 임베딩에는 `image_embeds`만 사용합니다.
+연구/URP 보고용 산출물과 경로는 팀 정책에 맞게 조정하세요.
