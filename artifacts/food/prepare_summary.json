@@ -1,0 +1,7 @@
+{
+  "source_csv": "YT_dataset_food.csv",
+  "total_input": 8538,
+  "skipped_no_path": 2,
+  "skipped_missing": 0,
+  "ready_count": 8536
+}
