@@ -1,0 +1,13 @@
+{
+  "category": "health",
+  "model": "dinov2-base",
+  "n_channels": 787,
+  "embedding_dim": 768,
+  "k_min": 2,
+  "k_max": 12,
+  "best_k": 2,
+  "best_silhouette_euclidean": 0.1190109462608981,
+  "labels_csv": "artifacts/health/embeddings/dinov2-base/kmeans_labels_k2.csv",
+  "sweep_json": "artifacts/health/embeddings/dinov2-base/kmeans_sweep.json",
+  "random_state": 42
+}

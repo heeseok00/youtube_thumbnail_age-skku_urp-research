@@ -1,0 +1,13 @@
+{
+  "category": "society",
+  "model": "dinov2-base",
+  "n_channels": 845,
+  "embedding_dim": 768,
+  "k_min": 2,
+  "k_max": 12,
+  "best_k": 2,
+  "best_silhouette_euclidean": 0.09111024343402882,
+  "labels_csv": "artifacts/society/embeddings/dinov2-base/kmeans_labels_k2.csv",
+  "sweep_json": "artifacts/society/embeddings/dinov2-base/kmeans_sweep.json",
+  "random_state": 42
+}

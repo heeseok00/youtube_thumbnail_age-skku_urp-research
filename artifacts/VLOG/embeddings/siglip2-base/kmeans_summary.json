@@ -1,0 +1,13 @@
+{
+  "category": "VLOG",
+  "model": "siglip2-base",
+  "n_channels": 784,
+  "embedding_dim": 768,
+  "k_min": 2,
+  "k_max": 12,
+  "best_k": 3,
+  "best_silhouette_euclidean": 0.100564016345844,
+  "labels_csv": "artifacts/VLOG/embeddings/siglip2-base/kmeans_labels_k3.csv",
+  "sweep_json": "artifacts/VLOG/embeddings/siglip2-base/kmeans_sweep.json",
+  "random_state": 42
+}
