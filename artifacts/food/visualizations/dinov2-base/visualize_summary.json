@@ -1,0 +1,7 @@
+{
+  "category": "food",
+  "model": "dinov2-base",
+  "level": "channel_mean",
+  "n_channels": 870,
+  "embedding_dim": 768
+}

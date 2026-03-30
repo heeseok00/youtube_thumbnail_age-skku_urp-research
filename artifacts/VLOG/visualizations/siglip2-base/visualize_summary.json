@@ -1,0 +1,7 @@
+{
+  "category": "VLOG",
+  "model": "siglip2-base",
+  "level": "channel_mean",
+  "n_channels": 784,
+  "embedding_dim": 768
+}
