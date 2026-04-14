@@ -1,0 +1,7 @@
+{
+  "source_csv": "YT_dataset_VLOG.csv",
+  "total_input": 7710,
+  "skipped_no_path": 1,
+  "skipped_missing": 0,
+  "ready_count": 7709
+}
