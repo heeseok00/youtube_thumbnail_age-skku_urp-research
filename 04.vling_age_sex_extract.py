@@ -267,10 +267,10 @@ def sex_age_extract(category: str) -> None:
                 print(f"[{i}/{len(targets)}] {row['channel_name']}  "
                       f"({e_m}분{e_s:02d}초 경과 | 예상 남은 {eta_m}분{eta_s:02d}초)")
                 viewers = scrape_viewers_info(row["channel_id"], row["channel_name"], page)
-                _append_row({**row.to_dict(), **viewers}, output_csv)
                 if all(v is None for v in viewers.values()):
-                    skipped += 1
+                    skipped += 1  # 저장 안 함 → 다음 실행 때 재시도
                 else:
+                    _append_row({**row.to_dict(), **viewers}, output_csv)
                     completed += 1
                 time.sleep(random.uniform(REQUEST_DELAY_MIN, REQUEST_DELAY_MAX))
             print_summary("수집 완료")
