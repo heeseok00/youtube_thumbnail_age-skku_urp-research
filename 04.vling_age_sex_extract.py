@@ -31,6 +31,32 @@ def to_vling_url(channel_id: str) -> str:
     return f"https://vling.net/channel/{channel_id}/viewers-info"
 
 
+CAPTCHA_SELECTORS = [
+    "iframe[src*='captcha']",
+    "iframe[src*='recaptcha']",
+    "iframe[src*='hcaptcha']",
+    ".cf-challenge-running",
+    "[class*='captcha']",
+    "[id*='captcha']",
+]
+
+
+def check_and_handle_captcha(page) -> None:
+    """캡차 감지 시 사용자가 직접 풀 때까지 대기."""
+    for sel in CAPTCHA_SELECTORS:
+        if page.query_selector(sel):
+            print("\n  ⚠ 캡차 감지됨! 브라우저에서 직접 풀고 Enter를 누르세요...")
+            input()
+            print("  재개합니다.")
+            return
+    # 텍스트 기반 감지
+    content = page.content()
+    if "인간인지 확인" in content or "verify you are human" in content.lower():
+        print("\n  ⚠ 캡차 감지됨! 브라우저에서 직접 풀고 Enter를 누르세요...")
+        input()
+        print("  재개합니다.")
+
+
 def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
     result = {
         "female_pct": None, "male_pct": None,
@@ -40,6 +66,9 @@ def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
 
     try:
         response = page.goto(to_vling_url(channel_id), wait_until="networkidle", timeout=30_000)
+
+        # 캡차 체크
+        check_and_handle_captcha(page)
 
         if response and response.status >= 400:
             print(f"  - 스킵 ({channel_name}): HTTP {response.status}")
