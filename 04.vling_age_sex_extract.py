@@ -189,8 +189,10 @@ def load_session(ctx, page) -> None:
 # ── 메인 수집 로직 ────────────────────────────────────────────
 
 def _append_row(row: dict, out_path: Path) -> None:
+    import csv
     pd.DataFrame([row]).to_csv(
-        out_path, mode="a", header=not out_path.exists(), index=False, encoding="utf-8-sig"
+        out_path, mode="a", header=not out_path.exists(), index=False,
+        encoding="utf-8-sig", quoting=csv.QUOTE_ALL,
     )
 
 
@@ -212,7 +214,7 @@ def sex_age_extract(category: str) -> None:
     done_ids: set = set()   # 성공 + 404 영구스킵
     skip404_ids: set = set()
     if output_csv.exists():
-        out_df = pd.read_csv(output_csv, encoding="utf-8-sig")
+        out_df = pd.read_csv(output_csv, encoding="utf-8-sig", on_bad_lines="skip")
         if "_skip" in out_df.columns:
             skip404_ids = set(out_df[out_df["_skip"] == "404"]["channel_id"].dropna())
         success_ids = set(out_df[out_df["female_pct"].notna() | out_df["male_pct"].notna()]["channel_id"].dropna())
