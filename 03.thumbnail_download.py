@@ -100,6 +100,7 @@ def download_thumbnails(
 
     if "thumbnail_path" not in df.columns:
         df["thumbnail_path"] = ""
+    df["thumbnail_path"] = df["thumbnail_path"].fillna("").astype(str)
 
     category = derive_category(meta_csv)
     base_dir = thumbnail_dir
