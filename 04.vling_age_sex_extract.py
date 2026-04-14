@@ -72,7 +72,7 @@ def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
     }
 
     try:
-        response = page.goto(to_vling_url(channel_id), wait_until="networkidle", timeout=30_000)
+        response = page.goto(to_vling_url(channel_id), wait_until="load", timeout=30_000)
 
         # 캡차 체크
         check_and_handle_captcha(page)
@@ -94,11 +94,9 @@ def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
         # 성별
         titles = page.query_selector_all('[class*="GenderChart_genderTitle"]')
         pcts   = page.query_selector_all('[class*="GenderChart_percent"]')
-        print(f"    [DEBUG] 성별 타이틀 {len(titles)}개 / 퍼센트 {len(pcts)}개 발견")
         for title_el, pct_el in zip(titles, pcts):
             title = title_el.inner_text().strip()
             pct_text = pct_el.inner_text().replace("%", "").strip()
-            print(f"    [DEBUG] 성별: '{title}' = '{pct_text}'")
             if not pct_text:
                 continue
             pct = float(pct_text)
@@ -107,16 +105,13 @@ def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
             elif title == "남성":
                 result["male_pct"] = pct
 
-        # 연령대 (AgeChart_age__ 로 시작하는 행만, AgeChart_ageTitle 제외)
-        age_rows = page.query_selector_all('[class*="AgeChart_age__"]')
-        print(f"    [DEBUG] 연령 행 {len(age_rows)}개 발견")
-        for age_row in age_rows:
+        # 연령대
+        for age_row in page.query_selector_all('[class*="AgeChart_age__"]'):
             label_el = age_row.query_selector('[class*="AgeChart_ageTitle"]')
             pct_el   = age_row.query_selector('[class*="AgeChart_percent"]')
             if label_el and pct_el:
                 label = label_el.inner_text().strip()
                 pct_text = pct_el.inner_text().replace("%", "").strip()
-                print(f"    [DEBUG] 연령: '{label}' = '{pct_text}'")
                 if label and pct_text:
                     result[f"age_{label}"] = float(pct_text)
 
