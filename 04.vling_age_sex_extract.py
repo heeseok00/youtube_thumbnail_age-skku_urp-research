@@ -22,7 +22,6 @@ from playwright.sync_api import sync_playwright
 
 CATEGORIES = ["VLOG", "FOOD", "EDU", "HEALTH", "SOCIETY"]
 SESSION_FILE = Path("vling_session.json")
-SAVE_INTERVAL = 10
 REQUEST_DELAY = 2
 
 
@@ -145,10 +144,8 @@ def load_session(ctx, page) -> None:
 
 # ── 메인 수집 로직 ────────────────────────────────────────────
 
-def _append_csv(rows: list, out_path: Path) -> None:
-    if not rows:
-        return
-    pd.DataFrame(rows).to_csv(
+def _append_row(row: dict, out_path: Path) -> None:
+    pd.DataFrame([row]).to_csv(
         out_path, mode="a", header=not out_path.exists(), index=False, encoding="utf-8-sig"
     )
 
@@ -198,21 +195,18 @@ def sex_age_extract(category: str) -> None:
         load_session(ctx, page)
         print("세션 복원 완료\n")
 
-        rows = []
-        for i, (_, row) in enumerate(targets.iterrows(), start=1):
-            print(f"[{i}/{len(targets)}] {row['channel_name']}")
-            viewers = scrape_viewers_info(row["channel_id"], row["channel_name"], page)
-            rows.append({**row.to_dict(), **viewers})
-
-            if i % SAVE_INTERVAL == 0:
-                _append_csv(rows, output_csv)
-                rows = []
-                print(f"  → 중간 저장 ({i}개 완료)")
-
-            time.sleep(REQUEST_DELAY)
-
-        _append_csv(rows, output_csv)
-        browser.close()
+        completed = 0
+        try:
+            for i, (_, row) in enumerate(targets.iterrows(), start=1):
+                print(f"[{i}/{len(targets)}] {row['channel_name']}")
+                viewers = scrape_viewers_info(row["channel_id"], row["channel_name"], page)
+                _append_row({**row.to_dict(), **viewers}, output_csv)
+                completed += 1
+                time.sleep(REQUEST_DELAY)
+        except KeyboardInterrupt:
+            print(f"\n[{category}] 중단됨 — {completed}개 저장 완료 → {output_csv}")
+        finally:
+            browser.close()
 
     print(f"\n[{category}] 완료 → {output_csv}")
 
