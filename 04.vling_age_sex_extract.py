@@ -277,7 +277,7 @@ def sex_age_extract(category: str) -> None:
         finally:
             try:
                 browser.close()
-            except Exception:
+            except BaseException:
                 pass
 
 
