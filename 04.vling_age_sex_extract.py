@@ -266,7 +266,10 @@ def sex_age_extract(category: str) -> None:
         except KeyboardInterrupt:
             print_summary("중단됨 (Ctrl+C)")
         finally:
-            browser.close()
+            try:
+                browser.close()
+            except Exception:
+                pass
 
 
 # ── CLI ───────────────────────────────────────────────────────
