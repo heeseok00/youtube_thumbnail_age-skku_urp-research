@@ -20,7 +20,9 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-DEFAULT_WORKERS = 16
+DEFAULT_WORKERS = 64
+DEFAULT_TIMEOUT = 5
+DEFAULT_RETRIES = 2
 
 _thread_local = threading.local()
 
@@ -58,8 +60,8 @@ def download_one(
     url: str,
     dest: Path,
     user_agent: str,
-    timeout: int = 10,
-    retries: int = 3,
+    timeout: int = DEFAULT_TIMEOUT,
+    retries: int = DEFAULT_RETRIES,
 ) -> bool:
     if not url:
         return False
@@ -75,7 +77,7 @@ def download_one(
             return True
         except requests.RequestException:
             if attempt < retries - 1:
-                time.sleep(0.5 * (2 ** attempt))
+                time.sleep(0.3 * (2 ** attempt))
     return False
 
 
@@ -86,6 +88,8 @@ def download_thumbnails(
     thumbnail_dir: Path,
     workers: int,
     user_agent: str,
+    timeout: int = DEFAULT_TIMEOUT,
+    retries: int = DEFAULT_RETRIES,
 ) -> None:
     df = pd.read_csv(meta_csv, encoding="utf-8-sig")
 
@@ -138,7 +142,7 @@ def download_thumbnails(
 
     def task(job: tuple[int, str, Path]) -> tuple[int, Path, bool]:
         idx, url, dest = job
-        ok = download_one(url, dest, user_agent)
+        ok = download_one(url, dest, user_agent, timeout=timeout, retries=retries)
         return idx, dest, ok
 
     try:
@@ -198,6 +202,18 @@ def parse_args() -> argparse.Namespace:
         default="Mozilla/5.0",
         help="HTTP User-Agent",
     )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=DEFAULT_TIMEOUT,
+        help=f"요청 타임아웃 초 (기본값: {DEFAULT_TIMEOUT})",
+    )
+    parser.add_argument(
+        "--retries",
+        type=int,
+        default=DEFAULT_RETRIES,
+        help=f"실패 시 재시도 횟수 (기본값: {DEFAULT_RETRIES})",
+    )
     return parser.parse_args()
 
 
@@ -213,6 +229,8 @@ def main() -> None:
         thumbnail_dir=thumbnail_dir,
         workers=max(1, args.workers),
         user_agent=args.user_agent,
+        timeout=args.timeout,
+        retries=args.retries,
     )
 
 
