@@ -1,0 +1,59 @@
+---
+description: Git commit message convention and auto-push rule for this project
+alwaysApply: true
+---
+
+# Git Commit & Push Convention
+
+모든 코드 변경 후 반드시 아래 컨벤션으로 커밋하고 `git push`까지 자동 실행한다.
+
+## Commit Message Format
+
+```
+<type>: <subject>
+
+<body> (optional)
+```
+
+## Types
+
+| Type | 용도 |
+|------|------|
+| `init` | 프로젝트 초기 세팅 |
+| `feat` | 새 기능 추가 |
+| `fix` | 버그 수정 |
+| `docs` | 문서 변경 |
+| `refactor` | 로직 변경 없는 구조 개선 |
+| `style` | 포맷 변경 (로직 무관) |
+| `test` | 테스트 코드 |
+| `chore` | 설정 / 의존성 변경 |
+| `perf` | 성능 개선 |
+| `ci` | CI/CD 변경 |
+
+## Rules
+
+- subject는 50자 이하
+- 현재형 동사로 시작 (Add, Fix, Update, Remove...)
+- 변경 단위가 명확해야 함 (모호한 메시지 금지: "update", "fix", "change" ❌)
+- 파일 1~2개 수정 → 한 줄 subject만으로도 충분
+- 여러 파일/기능 수정 → body에 bullet list로 상세 기록
+
+## PowerShell Commit Template
+
+```powershell
+$msg = @"
+<type>: <subject>
+
+- 변경 내용 1
+- 변경 내용 2
+"@
+git add <files>
+git commit -m $msg
+git push
+```
+
+## Auto-push Rule
+
+- 커밋 후 항상 `git push` 실행
+- remote가 없으면 사용자에게 GitHub URL을 먼저 요청
+- force push는 절대 하지 않음
