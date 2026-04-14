@@ -263,7 +263,14 @@ def sex_age_extract(category: str) -> None:
 
         try:
             for i, (_, row) in enumerate(targets.iterrows(), start=1):
-                print(f"[{i}/{len(targets)}] {row['channel_name']}")
+                elapsed = time.monotonic() - started_at
+                rate = i / elapsed if elapsed > 0 else 0
+                remaining_n = len(targets) - i
+                eta = remaining_n / rate if rate > 0 else 0
+                e_m, e_s = divmod(int(elapsed), 60)
+                eta_m, eta_s = divmod(int(eta), 60)
+                print(f"[{i}/{len(targets)}] {row['channel_name']}  "
+                      f"({e_m}분{e_s:02d}초 경과 | 예상 남은 {eta_m}분{eta_s:02d}초)")
                 viewers = scrape_viewers_info(row["channel_id"], row["channel_name"], page)
                 _append_row({**row.to_dict(), **viewers}, output_csv)
                 if all(v is None for v in viewers.values()):
