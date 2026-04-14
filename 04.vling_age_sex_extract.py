@@ -14,6 +14,7 @@ Output : Data/{CATEGORY}/{CATEGORY}_age_sex.csv
 """
 import argparse
 import json
+import random
 import time
 from pathlib import Path
 
@@ -22,7 +23,8 @@ from playwright.sync_api import sync_playwright
 
 CATEGORIES = ["VLOG", "FOOD", "EDU", "HEALTH", "SOCIETY"]
 SESSION_FILE = Path("vling_session.json")
-REQUEST_DELAY = 1
+REQUEST_DELAY_MIN = 1.0
+REQUEST_DELAY_MAX = 3.0
 
 
 # ── vling 유틸 ────────────────────────────────────────────────
@@ -251,7 +253,7 @@ def sex_age_extract(category: str) -> None:
                     skipped += 1
                 else:
                     completed += 1
-                time.sleep(REQUEST_DELAY)
+                time.sleep(random.uniform(REQUEST_DELAY_MIN, REQUEST_DELAY_MAX))
             print_summary("수집 완료")
         except KeyboardInterrupt:
             print_summary("중단됨 (Ctrl+C)")
