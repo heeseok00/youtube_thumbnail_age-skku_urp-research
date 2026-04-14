@@ -77,8 +77,12 @@ def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
         # 캡차 체크
         check_and_handle_captcha(page)
 
+        if response and response.status == 404:
+            print(f"  - 영구스킵 ({channel_name}): HTTP 404 (vling 미등록)")
+            result["_skip"] = "404"
+            return result
         if response and response.status >= 400:
-            print(f"  - 스킵 ({channel_name}): HTTP {response.status}")
+            print(f"  - 재시도대상 ({channel_name}): HTTP {response.status} (차단/오류)")
             return result
 
         if page.query_selector('[class*="ViewersInfoWrapper_blurred"]'):
@@ -205,12 +209,17 @@ def sex_age_extract(category: str) -> None:
 
     df = pd.read_csv(input_csv, encoding="utf-8-sig")
 
-    done_ids: set = set()
+    done_ids: set = set()   # 성공 + 404 영구스킵
+    skip404_ids: set = set()
     if output_csv.exists():
-        done_ids = set(pd.read_csv(output_csv, encoding="utf-8-sig")["channel_id"].dropna())
+        out_df = pd.read_csv(output_csv, encoding="utf-8-sig")
+        if "_skip" in out_df.columns:
+            skip404_ids = set(out_df[out_df["_skip"] == "404"]["channel_id"].dropna())
+        success_ids = set(out_df[out_df["female_pct"].notna() | out_df["male_pct"].notna()]["channel_id"].dropna())
+        done_ids = success_ids | skip404_ids
 
     targets = df[~df["channel_id"].isin(done_ids)].reset_index(drop=True)
-    print(f"[{category}] 전체 {len(df)}개 | 완료 {len(done_ids)}개 | 수집 대상 {len(targets)}개")
+    print(f"[{category}] 전체 {len(df)}개 | 성공 {len(done_ids)-len(skip404_ids)}개 | 404스킵 {len(skip404_ids)}개 | 수집 대상 {len(targets)}개")
     print(f"  입력: {input_csv}")
     print(f"  출력: {output_csv}\n")
 
@@ -267,7 +276,11 @@ def sex_age_extract(category: str) -> None:
                 print(f"[{i}/{len(targets)}] {row['channel_name']}  "
                       f"({e_m}분{e_s:02d}초 경과 | 예상 남은 {eta_m}분{eta_s:02d}초)")
                 viewers = scrape_viewers_info(row["channel_id"], row["channel_name"], page)
-                if all(v is None for v in viewers.values()):
+                is_404 = viewers.pop("_skip", None) == "404"
+                if is_404:
+                    _append_row({**row.to_dict(), **viewers, "_skip": "404"}, output_csv)
+                    skipped += 1  # 영구 스킵 저장
+                elif all(v is None for v in viewers.values()):
                     skipped += 1  # 저장 안 함 → 다음 실행 때 재시도
                 else:
                     _append_row({**row.to_dict(), **viewers}, output_csv)
