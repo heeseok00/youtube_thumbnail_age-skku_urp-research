@@ -81,7 +81,7 @@ def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
             print(f"  - 스킵 ({channel_name}): HTTP {response.status}")
             return result
 
-        if page.query_selector(".ViewersInfoWrapper_blurred__IycLC"):
+        if page.query_selector('[class*="ViewersInfoWrapper_blurred"]'):
             print(f"  ⚠ 블러 ({channel_name}): 로그인 만료 — 세션 갱신 필요")
             return result
 
@@ -92,24 +92,28 @@ def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
             return result
 
         # 성별
-        titles = page.query_selector_all(".GenderChart_genderTitle__Xe1JU")
-        pcts   = page.query_selector_all(".GenderChart_percent__SNsx1")
+        titles = page.query_selector_all('[class*="GenderChart_genderTitle"]')
+        pcts   = page.query_selector_all('[class*="GenderChart_percent"]')
         for title_el, pct_el in zip(titles, pcts):
             title = title_el.inner_text().strip()
-            pct   = float(pct_el.inner_text().replace("%", "").strip())
+            pct_text = pct_el.inner_text().replace("%", "").strip()
+            if not pct_text:
+                continue
+            pct = float(pct_text)
             if title == "여성":
                 result["female_pct"] = pct
             elif title == "남성":
                 result["male_pct"] = pct
 
         # 연령대
-        for age_row in page.query_selector_all(".AgeChart_age__uRX52"):
-            label_el = age_row.query_selector(".AgeChart_ageTitle__SOex_")
-            pct_el   = age_row.query_selector(".AgeChart_percent__2ODOU")
+        for age_row in page.query_selector_all('[class*="AgeChart_age"]'):
+            label_el = age_row.query_selector('[class*="AgeChart_ageTitle"]')
+            pct_el   = age_row.query_selector('[class*="AgeChart_percent"]')
             if label_el and pct_el:
                 label = label_el.inner_text().strip()
-                pct   = float(pct_el.inner_text().replace("%", "").strip())
-                result[f"age_{label}"] = pct
+                pct_text = pct_el.inner_text().replace("%", "").strip()
+                if label and pct_text:
+                    result[f"age_{label}"] = float(pct_text)
 
     except Exception as e:
         print(f"  ✗ 오류 ({channel_name}): {e}")
