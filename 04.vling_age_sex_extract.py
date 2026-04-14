@@ -72,7 +72,7 @@ def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
     }
 
     try:
-        response = page.goto(to_vling_url(channel_id), wait_until="load", timeout=30_000)
+        response = page.goto(to_vling_url(channel_id), wait_until="networkidle", timeout=30_000)
 
         # 캡차 체크
         check_and_handle_captcha(page)
