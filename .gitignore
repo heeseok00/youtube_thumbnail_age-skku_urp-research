@@ -27,7 +27,7 @@ artifacts/embeddings/**/*.npy
 artifacts/**/embeddings/**/*.npy
 
 # ── 데이터 백업 zip ───────────────────────────────────────────────────────
-YT_dataset.zip
+*.zip
 
 # ── HuggingFace 모델 캐시 ─────────────────────────────────────────────────
 .cache/
