@@ -20,6 +20,11 @@ from pathlib import Path
 
 import pandas as pd
 from playwright.sync_api import sync_playwright
+try:
+    from playwright_stealth import stealth_sync
+    STEALTH_AVAILABLE = True
+except ImportError:
+    STEALTH_AVAILABLE = False
 
 CATEGORIES = ["VLOG", "FOOD", "EDU", "HEALTH", "SOCIETY"]
 SESSION_FILE = Path("vling_session.json")
@@ -223,6 +228,9 @@ def sex_age_extract(category: str) -> None:
             ),
         )
         page = ctx.new_page()
+        if STEALTH_AVAILABLE:
+            stealth_sync(page)
+            print("  stealth 모드 적용됨")
         load_session(ctx, page)
         print("세션 복원 완료\n")
 
