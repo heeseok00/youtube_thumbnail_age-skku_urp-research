@@ -22,7 +22,7 @@ from playwright.sync_api import sync_playwright
 
 CATEGORIES = ["VLOG", "FOOD", "EDU", "HEALTH", "SOCIETY"]
 SESSION_FILE = Path("vling_session.json")
-REQUEST_DELAY = 2
+REQUEST_DELAY = 1
 
 
 # ── vling 유틸 ────────────────────────────────────────────────
@@ -65,7 +65,7 @@ def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
     }
 
     try:
-        response = page.goto(to_vling_url(channel_id), wait_until="networkidle", timeout=30_000)
+        response = page.goto(to_vling_url(channel_id), wait_until="domcontentloaded", timeout=30_000)
 
         # 캡차 체크
         check_and_handle_captcha(page)
@@ -138,7 +138,7 @@ def save_session() -> None:
             ),
         )
         page = ctx.new_page()
-        page.goto("https://vling.net/", wait_until="domcontentloaded", timeout=60_000)
+        page.goto("https://vling.net/", wait_until="networkidle", timeout=60_000)
         input("vling.net에 로그인 후 Enter를 누르세요...\n")
 
         SESSION_FILE.write_text(
@@ -158,7 +158,7 @@ def load_session(ctx, page) -> None:
     storage = data.get("storage") or {}
 
     ctx.add_cookies(cookies)
-    page.goto("https://vling.net/", wait_until="domcontentloaded", timeout=60_000)
+    page.goto("https://vling.net/", wait_until="networkidle", timeout=60_000)
 
     if storage:
         page.evaluate(
@@ -168,7 +168,7 @@ def load_session(ctx, page) -> None:
             }""",
             storage,
         )
-    page.reload(wait_until="domcontentloaded", timeout=60_000)
+    page.reload(wait_until="networkidle", timeout=60_000)
 
 
 # ── 메인 수집 로직 ────────────────────────────────────────────
