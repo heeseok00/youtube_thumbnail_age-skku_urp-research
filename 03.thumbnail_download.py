@@ -131,34 +131,42 @@ def download_thumbnails(
     fail = 0
     lock = threading.Lock()
     started_at = time.monotonic()
+    SAVE_INTERVAL = 500
+
+    def save_csv() -> None:
+        df.to_csv(meta_csv, index=False, encoding="utf-8-sig")
 
     def task(job: tuple[int, str, Path]) -> tuple[int, Path, bool]:
         idx, url, dest = job
         ok = download_one(url, dest, user_agent)
         return idx, dest, ok
 
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(task, j): j for j in jobs}
-        for i, future in enumerate(as_completed(futures), 1):
-            idx, dest, ok = future.result()
-            with lock:
-                if ok:
-                    df.at[idx, "thumbnail_path"] = str(dest)
-                    success += 1
-                else:
-                    fail += 1
+    try:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = {pool.submit(task, j): j for j in jobs}
+            for i, future in enumerate(as_completed(futures), 1):
+                idx, dest, ok = future.result()
+                with lock:
+                    if ok:
+                        df.at[idx, "thumbnail_path"] = str(dest)
+                        success += 1
+                    else:
+                        fail += 1
 
-                if i % 500 == 0 or i == len(jobs):
-                    elapsed = time.monotonic() - started_at
-                    rate = i / elapsed if elapsed > 0 else 0
-                    eta = (len(jobs) - i) / rate if rate > 0 else 0
-                    print(
-                        f"  {i}/{len(jobs)} | 성공 {success} 실패 {fail} | "
-                        f"경과 {format_seconds(elapsed)} | 예상 남은 {format_seconds(eta)}"
-                    )
-
-    # CSV 덮어쓰기 (thumbnail_path 업데이트)
-    df.to_csv(meta_csv, index=False, encoding="utf-8-sig")
+                    if i % SAVE_INTERVAL == 0 or i == len(jobs):
+                        save_csv()
+                        elapsed = time.monotonic() - started_at
+                        rate = i / elapsed if elapsed > 0 else 0
+                        eta = (len(jobs) - i) / rate if rate > 0 else 0
+                        print(
+                            f"  {i}/{len(jobs)} | 성공 {success} 실패 {fail} | "
+                            f"경과 {format_seconds(elapsed)} | 예상 남은 {format_seconds(eta)}"
+                        )
+    except KeyboardInterrupt:
+        print(f"\n[{category}] 중단됨 — 진행분 저장 중...")
+        save_csv()
+        print(f"[{category}] 저장 완료: 성공 {success}개 / 실패 {fail}개 → {meta_csv}")
+        return
 
     print(f"\n[{category}] 완료: 성공 {success}개 / 실패 {fail}개 → {meta_csv} 업데이트")
 
