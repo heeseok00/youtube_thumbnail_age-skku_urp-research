@@ -136,6 +136,7 @@ def download_thumbnails(
     lock = threading.Lock()
     started_at = time.monotonic()
     SAVE_INTERVAL = 500
+    LOG_INTERVAL = 100
 
     def save_csv() -> None:
         df.to_csv(meta_csv, index=False, encoding="utf-8-sig")
@@ -157,8 +158,7 @@ def download_thumbnails(
                     else:
                         fail += 1
 
-                    if i % SAVE_INTERVAL == 0 or i == len(jobs):
-                        save_csv()
+                    if i % LOG_INTERVAL == 0 or i == len(jobs):
                         elapsed = time.monotonic() - started_at
                         rate = i / elapsed if elapsed > 0 else 0
                         eta = (len(jobs) - i) / rate if rate > 0 else 0
@@ -166,6 +166,8 @@ def download_thumbnails(
                             f"  {i}/{len(jobs)} | 성공 {success} 실패 {fail} | "
                             f"경과 {format_seconds(elapsed)} | 예상 남은 {format_seconds(eta)}"
                         )
+                    if i % SAVE_INTERVAL == 0 or i == len(jobs):
+                        save_csv()
     except KeyboardInterrupt:
         print(f"\n[{category}] 중단됨 — 진행분 저장 중...")
         save_csv()
