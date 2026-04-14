@@ -107,8 +107,8 @@ def scrape_viewers_info(channel_id: str, channel_name: str, page) -> dict:
             elif title == "남성":
                 result["male_pct"] = pct
 
-        # 연령대
-        age_rows = page.query_selector_all('[class*="AgeChart_age"]')
+        # 연령대 (AgeChart_age__ 로 시작하는 행만, AgeChart_ageTitle 제외)
+        age_rows = page.query_selector_all('[class*="AgeChart_age__"]')
         print(f"    [DEBUG] 연령 행 {len(age_rows)}개 발견")
         for age_row in age_rows:
             label_el = age_row.query_selector('[class*="AgeChart_ageTitle"]')
