@@ -196,19 +196,38 @@ def sex_age_extract(category: str) -> None:
         print("세션 복원 완료\n")
 
         completed = 0
+        skipped = 0
+        started_at = time.monotonic()
+
+        def print_summary(reason: str) -> None:
+            elapsed = int(time.monotonic() - started_at)
+            total_done = len(done_ids) + completed
+            remaining = len(df) - total_done
+            m, s = divmod(elapsed, 60)
+            print(f"\n{'─'*50}")
+            print(f"[{category}] {reason}")
+            print(f"  이번 실행 수집: {completed}개  (스킵/없음: {skipped}개)")
+            print(f"  누적 완료:      {total_done}/{len(df)}개")
+            print(f"  남은 채널:      {remaining}개")
+            print(f"  소요 시간:      {m}분 {s}초")
+            print(f"  출력 파일:      {output_csv}")
+            print(f"{'─'*50}")
+
         try:
             for i, (_, row) in enumerate(targets.iterrows(), start=1):
                 print(f"[{i}/{len(targets)}] {row['channel_name']}")
                 viewers = scrape_viewers_info(row["channel_id"], row["channel_name"], page)
                 _append_row({**row.to_dict(), **viewers}, output_csv)
-                completed += 1
+                if all(v is None for v in viewers.values()):
+                    skipped += 1
+                else:
+                    completed += 1
                 time.sleep(REQUEST_DELAY)
+            print_summary("수집 완료")
         except KeyboardInterrupt:
-            print(f"\n[{category}] 중단됨 — {completed}개 저장 완료 → {output_csv}")
+            print_summary("중단됨 (Ctrl+C)")
         finally:
             browser.close()
-
-    print(f"\n[{category}] 완료 → {output_csv}")
 
 
 # ── CLI ───────────────────────────────────────────────────────
