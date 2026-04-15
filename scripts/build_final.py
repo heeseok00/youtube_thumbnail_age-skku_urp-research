@@ -48,9 +48,18 @@ for cat in CATEGORIES:
     # ── final_raw: 전체 보존 ────────────────────────────────
     df_raw.to_csv(raw_out_p, index=False, encoding="utf-8-sig")
 
-    # ── final_clean: 핵심 컬럼 결측 행 제거 ────────────────
+    # ── final_clean: 핵심 컬럼 결측 행 제거 + 썸네일 파일 실존 확인 ──
     req_present = [c for c in REQUIRED_COLS if c in df_raw.columns]
     df_clean = df_raw.dropna(subset=req_present).reset_index(drop=True)
+
+    # thumbnail_path가 있지만 실제 파일이 없는 행 제거
+    if "thumbnail_path" in df_clean.columns:
+        file_exists = df_clean["thumbnail_path"].apply(lambda p: Path(str(p)).exists())
+        dropped_no_file = int((~file_exists).sum())
+        df_clean = df_clean[file_exists].reset_index(drop=True)
+        if dropped_no_file:
+            print(f"  파일 없는 행 추가 제거: {dropped_no_file}행")
+
     df_clean.to_csv(clean_out_p, index=False, encoding="utf-8-sig")
 
     # 요약
