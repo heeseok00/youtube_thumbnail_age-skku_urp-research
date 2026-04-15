@@ -22,7 +22,7 @@
 02. YouTube API 메타·썸네일     → data_pipeline/02_youtube_metadata/02.data_collection_metadata.py (+ .env)
 03. 썸네일만 재다운로드         → data_pipeline/03_thumbnail_download/03.thumbnail_download.py
 04. vling 연령·성별             → data_pipeline/04_vling_demographics/04.vling_age_sex_extract.py
-(임베딩·UMAP 등)                → 03.thumbnail_age_pipeline.ipynb, 04_channel_clustering.ipynb 등
+(임베딩·UMAP 등)                → `07.thumbnail_age_pipeline.ipynb`, `06_channel_clustering.ipynb` 등
 ```
 
 배치로 5개 카테고리 수집을 연속 실행하려면 [`yt_all_collect.bat`](yt_all_collect.bat)을 사용합니다 (내부에서 `data_pipeline/02_youtube_metadata/02.data_collection_metadata.py` 호출). 단계별 설명은 [`data_pipeline/README.md`](data_pipeline/README.md) 참고.
@@ -45,9 +45,9 @@ conda activate ytvenv
 YOUTUBE_API_KEY=발급받은_키
 ```
 
-- **GPU:** PyTorch CUDA 빌드 사용 시 임베딩(03 Step 2)이 빠릅니다. `03` 설정 셀에서 `DEVICE = "cuda"` 등으로 지정.  
+- **GPU:** PyTorch CUDA 빌드 사용 시 임베딩(07 노트북 Step 2)이 빠릅니다. 해당 노트북 설정 셀에서 `DEVICE = "cuda"` 등으로 지정.  
 - **Hugging Face:** 모델 다운로드 시 rate limit 완화를 위해 `hf auth login` 또는 `HF_TOKEN` 권장.  
-- **Windows:** OpenMP 충돌 완화를 위해 노트북에 `KMP_DUPLICATE_LIB_OK` 설정이 들어가 있습니다. K-means 경고 완화는 `04` 설정 셀의 `OMP_NUM_THREADS`를 참고하세요.
+- **Windows:** OpenMP 충돌 완화를 위해 노트북에 `KMP_DUPLICATE_LIB_OK` 설정이 들어가 있습니다. K-means 경고 완화는 `06_channel_clustering.ipynb` 설정 셀의 `OMP_NUM_THREADS`를 참고하세요.
 
 ---
 
@@ -60,8 +60,8 @@ YOUTUBE_API_KEY=발급받은_키
 | 노트북 | `data_pipeline/01_channel_collection/01.channel_collection.ipynb` | 채널 목록 수집 |
 | 스크립트 | `data_pipeline/02_youtube_metadata/02.data_collection_metadata.py` | YouTube Data API v3로 채널별 영상 메타·썸네일 다운로드 |
 | 배치 | `yt_all_collect.bat` | 카테고리별 `02` 실행 예시 |
-| 노트북 | `03.thumbnail_age_pipeline.ipynb` | 준비 → 임베딩 → 채널 평균 → UMAP/t-SNE |
-| 노트북 | `04_channel_clustering.ipynb` | 채널 벡터 K-means(실루엣 k 탐색) + UMAP 색상 플롯 |
+| 노트북 | `07.thumbnail_age_pipeline.ipynb` | 준비 → 임베딩 → 채널 평균 → UMAP/t-SNE |
+| 노트북 | `06_channel_clustering.ipynb` | 채널 벡터 K-means(실루엣 k 탐색) + UMAP 색상 플롯 |
 | 환경 | `ytvenv.yaml` | conda 환경 고정 (PyTorch cu128 등은 주석·공식 안내 참고) |
 
 ### 데이터 CSV (예시 이름)
@@ -76,7 +76,7 @@ YOUTUBE_API_KEY=발급받은_키
 
 ---
 
-## `03.thumbnail_age_pipeline.ipynb` 단계
+## `07.thumbnail_age_pipeline.ipynb` 단계
 
 | 단계 | 내용 | 산출(요약) |
 |------|------|------------|
@@ -90,7 +90,7 @@ YOUTUBE_API_KEY=발급받은_키
 
 ---
 
-## `04_channel_clustering.ipynb`
+## `06_channel_clustering.ipynb`
 
 - 입력: `channel_embeddings.npy` + `channel_metadata.csv` (행 순서 일치)  
 - `K_MIN`~`K_MAX` 범위에서 **실루엣(euclidean)** 이 가장 큰 **k**를 선택해 K-means 라벨 저장  
