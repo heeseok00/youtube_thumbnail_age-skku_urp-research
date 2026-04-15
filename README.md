@@ -17,14 +17,15 @@
 ## 전체 파이프라인
 
 ```
-00. 카테고리·기준 탐색          → 00.category_selection.ipynb
-01. 채널 후보 수집              → 01.channel_collection.ipynb
-02. YouTube API 데이터·썸네일   → 02.data_collection.py (+ .env API 키)
-03. 임베딩·채널 평균·2D 시각화  → 03.thumbnail_age_pipeline.ipynb
-04. 고차원 K-means·UMAP(색)     → 04_channel_clustering.ipynb
+00. 카테고리·기준 탐색          → data_pipeline/00_category_selection/00.category_selection.ipynb
+01. 채널 후보 수집              → data_pipeline/01_channel_collection/01.channel_collection.ipynb
+02. YouTube API 메타·썸네일     → data_pipeline/02_youtube_metadata/02.data_collection_metadata.py (+ .env)
+03. 썸네일만 재다운로드         → data_pipeline/03_thumbnail_download/03.thumbnail_download.py
+04. vling 연령·성별             → data_pipeline/04_vling_demographics/04.vling_age_sex_extract.py
+(임베딩·UMAP 등)                → 03.thumbnail_age_pipeline.ipynb, 04_channel_clustering.ipynb 등
 ```
 
-배치로 5개 카테고리 수집을 연속 실행하려면 [`yt_all_collect.bat`](yt_all_collect.bat)을 사용합니다 (내부에서 `02.data_collection.py` 호출).
+배치로 5개 카테고리 수집을 연속 실행하려면 [`yt_all_collect.bat`](yt_all_collect.bat)을 사용합니다 (내부에서 `data_pipeline/02_youtube_metadata/02.data_collection_metadata.py` 호출). 단계별 설명은 [`data_pipeline/README.md`](data_pipeline/README.md) 참고.
 
 ---
 
@@ -54,9 +55,10 @@ YOUTUBE_API_KEY=발급받은_키
 
 | 구분 | 파일 | 설명 |
 |------|------|------|
-| 노트북 | `00.category_selection.ipynb` | 카테고리·선정 메모 |
-| 노트북 | `01.channel_collection.ipynb` | 채널 목록 수집 |
-| 스크립트 | `02.data_collection.py` | YouTube Data API v3로 채널별 영상 메타·썸네일 다운로드 |
+| 폴더 | `data_pipeline/` | CSV 구축 단계(00–04) 노트북·스크립트 모음 |
+| 노트북 | `data_pipeline/00_category_selection/00.category_selection.ipynb` | 카테고리·선정 메모 |
+| 노트북 | `data_pipeline/01_channel_collection/01.channel_collection.ipynb` | 채널 목록 수집 |
+| 스크립트 | `data_pipeline/02_youtube_metadata/02.data_collection_metadata.py` | YouTube Data API v3로 채널별 영상 메타·썸네일 다운로드 |
 | 배치 | `yt_all_collect.bat` | 카테고리별 `02` 실행 예시 |
 | 노트북 | `03.thumbnail_age_pipeline.ipynb` | 준비 → 임베딩 → 채널 평균 → UMAP/t-SNE |
 | 노트북 | `04_channel_clustering.ipynb` | 채널 벡터 K-means(실루엣 k 탐색) + UMAP 색상 플롯 |
@@ -120,14 +122,14 @@ artifacts/{카테고리}/
 
 ---
 
-## `02.data_collection.py` 실행 예
+## `02.data_collection_metadata.py` 실행 예
 
 ```bash
 conda activate ytvenv
-python 02.data_collection.py --channels-csv YT_ChannelData_Health_clean.csv --output-csv YT_dataset_health.csv --video-count 10
+python data_pipeline/02_youtube_metadata/02.data_collection_metadata.py --channels-csv YT_ChannelData_Health_clean.csv --output-csv YT_dataset_health.csv --video-count 10
 ```
 
-옵션은 `python 02.data_collection.py --help`로 확인합니다.
+옵션은 `python data_pipeline/02_youtube_metadata/02.data_collection_metadata.py --help`로 확인합니다.
 
 ---
 

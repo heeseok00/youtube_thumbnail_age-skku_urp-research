@@ -3,11 +3,11 @@
 
 Usage:
     # 1) 최초 1회: 로그인 세션 저장
-    python 04.vling_age_sex_extract.py --save-session
+    python data_pipeline/04_vling_demographics/04.vling_age_sex_extract.py --save-session
 
     # 2) 수집 실행 (카테고리 지정)
-    python 04.vling_age_sex_extract.py --category VLOG
-    python 04.vling_age_sex_extract.py --category SOCIETY
+    python data_pipeline/04_vling_demographics/04.vling_age_sex_extract.py --category VLOG
+    python data_pipeline/04_vling_demographics/04.vling_age_sex_extract.py --category SOCIETY
 
 Input  : Data/{CATEGORY}/{CATEGORY}_clean.csv
 Output : Data/{CATEGORY}/{CATEGORY}_age_sex.csv
@@ -206,7 +206,7 @@ def sex_age_extract(category: str) -> None:
     if not SESSION_FILE.exists():
         raise FileNotFoundError(
             f"세션 파일 없음: {SESSION_FILE}\n"
-            "먼저 실행하세요: python 04.vling_age_sex_extract.py --save-session"
+            "먼저 실행하세요: python data_pipeline/04_vling_demographics/04.vling_age_sex_extract.py --save-session"
         )
 
     df = pd.read_csv(input_csv, encoding="utf-8-sig")

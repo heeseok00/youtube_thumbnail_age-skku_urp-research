@@ -2,8 +2,8 @@
 """Download thumbnails from a metadata CSV and update thumbnail_path column.
 
 Usage:
-    python 03.thumbnail_download.py --meta-csv data/VLOG/VLOG_meta.csv
-    python 03.thumbnail_download.py --meta-csv data/VLOG/VLOG_meta.csv --workers 16
+    python data_pipeline/03_thumbnail_download/03.thumbnail_download.py --meta-csv Data/VLOG/VLOG_meta.csv
+    python data_pipeline/03_thumbnail_download/03.thumbnail_download.py --meta-csv Data/VLOG/VLOG_meta.csv --workers 16
 
 By default thumbnails are saved to  <meta_csv_dir>/thumbnails/<channel_name>/<video_id>.jpg
 e.g. data/VLOG/thumbnails/ChannelName/abc123.jpg
