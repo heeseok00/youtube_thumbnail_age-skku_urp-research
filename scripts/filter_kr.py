@@ -33,7 +33,7 @@ def has_foreign_script(name: str) -> bool:
 
 for cat in CATEGORIES:
     clean_p = Path(f"Data/{cat}/{cat}_final_clean.csv")
-    out_p   = Path(f"Data/{cat}/{cat}_final_kr.csv")
+    out_p   = Path(f"Data/{cat}/{cat}_final_kr_clean.csv")
 
     if not clean_p.exists():
         print(f"[{cat}] final_clean 없음 — 건너뜀")
