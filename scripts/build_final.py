@@ -12,7 +12,10 @@
 import pandas as pd
 from pathlib import Path
 
-CATEGORIES = ["FOOD", "SOCIETY", "VLOG"]
+CATEGORIES = ["FOOD", "SOCIETY", "VLOG", "HEALTH"]
+
+# 썸네일 다운로드를 나중에 따로 하는 카테고리 → thumbnail_path 파일 실존 체크 스킵
+NO_THUMBNAIL_CHECK_CATS = {"HEALTH"}
 
 AGE_SEX_COLS = [
     "channel_link", "subscriberCount", "dailyViewCount",
@@ -49,16 +52,21 @@ for cat in CATEGORIES:
     df_raw.to_csv(raw_out_p, index=False, encoding="utf-8-sig")
 
     # ── final_clean: 핵심 컬럼 결측 행 제거 + 썸네일 파일 실존 확인 ──
-    req_present = [c for c in REQUIRED_COLS if c in df_raw.columns]
+    # thumbnail_path 체크 스킵 카테고리는 required에서 제외
+    skip_thumb_check = cat in NO_THUMBNAIL_CHECK_CATS
+    req_cols = [c for c in REQUIRED_COLS if c != "thumbnail_path"] if skip_thumb_check else REQUIRED_COLS
+    req_present = [c for c in req_cols if c in df_raw.columns]
     df_clean = df_raw.dropna(subset=req_present).reset_index(drop=True)
 
-    # thumbnail_path가 있지만 실제 파일이 없는 행 제거
-    if "thumbnail_path" in df_clean.columns:
+    # thumbnail_path가 있지만 실제 파일이 없는 행 제거 (스킵 카테고리는 건너뜀)
+    if not skip_thumb_check and "thumbnail_path" in df_clean.columns:
         file_exists = df_clean["thumbnail_path"].apply(lambda p: Path(str(p)).exists())
         dropped_no_file = int((~file_exists).sum())
         df_clean = df_clean[file_exists].reset_index(drop=True)
         if dropped_no_file:
             print(f"  파일 없는 행 추가 제거: {dropped_no_file}행")
+    elif skip_thumb_check:
+        print(f"  [참고] thumbnail_path 파일 실존 체크 스킵 ({cat}: 썸네일 나중에 다운로드)")
 
     df_clean.to_csv(clean_out_p, index=False, encoding="utf-8-sig")
 
