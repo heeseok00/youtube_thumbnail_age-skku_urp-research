@@ -12,7 +12,7 @@ import unicodedata
 import pandas as pd
 from pathlib import Path
 
-CATEGORIES = ["FOOD", "SOCIETY", "VLOG", "HEALTH"]
+CATEGORIES = ["FOOD", "SOCIETY", "VLOG", "HEALTH", "EDU"]
 
 ALLOWED_LANGS = {"ko", "en", "en-US", "en-GB"}
 

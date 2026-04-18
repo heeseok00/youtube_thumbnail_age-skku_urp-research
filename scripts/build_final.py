@@ -12,10 +12,10 @@
 import pandas as pd
 from pathlib import Path
 
-CATEGORIES = ["FOOD", "SOCIETY", "VLOG", "HEALTH"]
+CATEGORIES = ["FOOD", "SOCIETY", "VLOG", "HEALTH", "EDU"]
 
 # 썸네일 다운로드를 나중에 따로 하는 카테고리 → thumbnail_path 파일 실존 체크 스킵
-NO_THUMBNAIL_CHECK_CATS = {"HEALTH"}
+NO_THUMBNAIL_CHECK_CATS = {"HEALTH", "EDU"}
 
 AGE_SEX_COLS = [
     "channel_link", "subscriberCount", "dailyViewCount",
