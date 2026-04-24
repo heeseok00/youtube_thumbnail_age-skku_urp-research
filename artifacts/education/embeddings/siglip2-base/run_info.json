@@ -1,9 +1,0 @@
-{
-  "alias": "siglip2-base",
-  "model_id": "google/siglip2-base-patch16-224",
-  "device": "cuda",
-  "batch_size": 32,
-  "rows_input": 8424,
-  "rows_embedded": 8424,
-  "embedding_dim": 768
-}

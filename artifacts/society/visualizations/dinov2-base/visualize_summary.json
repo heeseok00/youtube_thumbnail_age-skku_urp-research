@@ -1,7 +1,0 @@
-{
-  "category": "society",
-  "model": "dinov2-base",
-  "level": "channel_mean",
-  "n_channels": 845,
-  "embedding_dim": 768
-}

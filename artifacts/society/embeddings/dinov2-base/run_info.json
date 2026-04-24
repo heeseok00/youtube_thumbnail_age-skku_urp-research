@@ -1,9 +1,0 @@
-{
-  "alias": "dinov2-base",
-  "model_id": "facebook/dinov2-base",
-  "device": "cuda",
-  "batch_size": 32,
-  "rows_input": 8366,
-  "rows_embedded": 8366,
-  "embedding_dim": 768
-}

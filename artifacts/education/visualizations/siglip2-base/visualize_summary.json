@@ -1,7 +1,0 @@
-{
-  "category": "education",
-  "model": "siglip2-base",
-  "level": "channel_mean",
-  "n_channels": 848,
-  "embedding_dim": 768
-}
