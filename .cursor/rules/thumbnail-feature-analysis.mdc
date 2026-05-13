@@ -1,0 +1,140 @@
+---
+description: 썸네일 피처 분석 파이프라인 — 전체 피처 분석 결과 및 인사이트 참조
+alwaysApply: true
+---
+
+# 썸네일 피처 분석: ~34세 vs 65세+ (시사/뉴스/사건)
+
+## 프로젝트 개요
+- 데이터: `Data/SOCIETY/SOCIETY_new_category_v3_add_thumnail_title_features_merged.csv`
+- 대상: `시사/뉴스/사건` subcategory — ~34세(n=2,795) / 65세+(n=3,082)
+- 연령 그룹 기준: 각 영상의 dominant 연령대 버킷 기준 분류 (35~64세 dominant는 분석 제외)
+- 통계 검정: 연속형 → Mann-Whitney U test / 범주형 → 카이제곱 검정
+- 시각화 결과: `5_썸네일 피처 분석 파이프라인/analysis/outputs/per_feature/`
+
+---
+
+## 피처별 분석 결과 및 인사이트
+
+### F1. 인물 비중 (person_ratio)
+- **추출**: YOLOv8s-seg로 사람 픽셀 마스크 → `사람 픽셀 수 / 전체 픽셀 수`
+- **결과 ①** 사람 등장 여부: ~34세 78.6% vs 65세+ 84.1% (χ²=28.99, p=7.27e-08 ***)
+- **결과 ②** 사람 있는 영상만: 평균 0.114 vs 0.118, p=0.061 ns (차이 없음)
+- **인사이트**: 65세+는 사람을 더 자주 등장시키지만 등장 크기는 동일. 유효 피처는 비율보다 등장 여부
+- **시각화**: `feat_person_presence.png`, `feat_person_ratio.png`
+
+### F2. 인물 수 (person_count_cat)
+- **추출**: YOLOv8s-seg 감지 수 → 0명/1명/2명/3명+ 범주화
+- **결과**: χ²=31.37, p=7.11e-07 *** / 0명: ~34세 21.5% vs 65세+ 16.0% (-5.5%p) / 3명+: 36.2% vs 39.0% (+2.8%p)
+- **인사이트**: 65세+는 사람 없는 썸네일이 적고 여러 명이 함께 등장하는 구성을 선호
+- **시각화**: `feat_person_count_cat_v2.png` (누적+차이 막대)
+
+### F3. 텍스트 비중 (text_ratio)
+- **추출**: EasyOCR(한국어+영어)로 텍스트 박스 폴리곤 면적 합산 → 전체 픽셀 대비 비율
+- **결과**: ~34세 0.234 vs 65세+ 0.345, p=2.02e-118 *** — 전체 피처 중 가장 강한 유의성
+- **인사이트**: 65세+는 텍스트를 약 1.5배 더 많이 사용. 클릭 전 썸네일 텍스트로 내용 파악 선호 경향
+- **시각화**: `feat_text_ratio.png`
+
+### F4. 색상 채도 (color_saturation)
+- **추출**: RGB→HSV 변환 후 전체 픽셀 채도 평균 × 255
+- **결과**: ~34세 77.8 vs 65세+ 92.4, p=8.90e-59 *** — 색상 피처 중 가장 큰 절대 차이
+- **인사이트**: 65세+ 영상은 원색 계열의 강렬한 색상으로 시선 유도
+- **시각화**: `feat_color_saturation.png`
+
+### F5. 색상 밝기 (color_brightness)
+- **추출**: HSV의 Value 채널 픽셀 평균 × 255
+- **결과**: ~34세 124.6 vs 65세+ 118.4, p=6.38e-08 *** — 유일하게 ~34세가 더 높은 색상 피처
+- **인사이트**: ~34세는 밝고 채도 낮은 파스텔/화이트 톤, 65세+는 어둡고 채도 높은 원색 톤
+- **시각화**: `feat_color_brightness.png`
+
+### F6. 따뜻한 색 비율 (color_warm_ratio)
+- **추출**: Hue 0~30(빨강/주황) + Hue 150~180(분홍/자주) 픽셀 비율 (OpenCV Hue 0~180 기준)
+- **결과**: ~34세 0.634 vs 65세+ 0.631, p=0.106 ns — 유의미하지 않음
+- **인사이트**: 시사/뉴스 콘텐츠 특성(인물 등장)으로 두 그룹 모두 따뜻한 색 비율이 자연스럽게 높음. 연령 구분에 유효하지 않은 피처
+- **시각화**: `feat_color_warm_ratio.png`, `hue_warm_cool_reference.png`
+
+### F7. 색상 다양성 (color_entropy)
+- **추출**: 채도 > 15% 유채색 픽셀만 추출 → Hue 10도 단위 18구간 히스토그램 → Shannon 엔트로피
+- **결과**: ~34세 2.327 vs 65세+ 2.515, p=2.39e-25 ***
+- **인사이트**: 65세+는 여러 강렬한 색을 함께 사용하는 복잡한 구성, ~34세는 특정 색 위주의 통일된 구성
+- **시각화**: `feat_color_entropy.png`
+
+### F8. 색조 표준편차 (color_hue_std)
+- **추출**: `scipy.stats.circstd`로 Hue 순환 표준편차 계산 (0~360도 원형 특성 반영)
+- **결과**: ~34세 31.5 vs 65세+ 33.0, p=8.59e-06 *** — F7 엔트로피와 교차 검증
+- **인사이트**: 65세+ 썸네일은 색조 자체가 고르게 퍼져 시각적 다양성이 실제로 높음
+- **시각화**: `feat_color_hue_std.png`
+
+### F9. 인물 시선 (head_pose)
+- **추출**: MediaPipe Face Landmarker로 얼굴 랜드마크 감지 → 정면/측면/없음 분류 (사람 있는 영상만)
+- **결과**: 정면 22.5% vs 26.1% (+3.6%p), χ²=8.09, p=0.018 * — 유의미하나 약한 수준
+- **인사이트**: 65세+는 정면 응시 비율이 약간 더 높음. 정면 구도는 신뢰감·친밀감 형성 효과
+- **시각화**: `feat_headpose_expression_v2.png` (왼쪽)
+
+### F10. 인물 표정 (expression_dominant)
+- **추출**: FER로 가장 큰 얼굴의 7개 감정 분류 (사람 있는 영상만)
+- **결과**: χ²=54.33, p=6.32e-10 *** / 슬픔: 19.0%→28.4% (+9.4%p) / 기쁨: 24.3%→20.2% (-4.1%p) / 중립: 35.1%→29.8% (-5.3%p)
+- **인사이트**: 65세+는 슬픔 표정이 1.5배 많음. ~34세는 기쁨·중립의 밝고 편안한 분위기 선호
+- **시각화**: `feat_headpose_expression_v2.png` (오른쪽)
+
+---
+
+## 전체 종합 인사이트
+
+| 구분 | ~34세 | 65세+ |
+|------|------|-------|
+| 인물 구성 | 사람 없는 썸네일 多, 단독 위주 | 사람 자주 등장, 다수 인물 선호 |
+| 텍스트 | 적게 사용 (평균 23%) | 많이 사용 (평균 35%) |
+| 색상 | 밝고 채도 낮은 차분한 톤 | 채도 높고 다채롭고 복잡한 색상 |
+| 표정 | 기쁨·중립 위주 | 슬픔 비율 높음 (무겁고 자극적) |
+
+- **유효하지 않은 피처**: color_warm_ratio (p=0.106 ns), person_ratio 크기 (사람 있을 때 p=0.061 ns)
+- **단변량 피처 중요도 순위**: text_ratio > color_saturation > expression_dominant > person_count_cat > color_entropy
+
+---
+
+## 다변량 분석 (Random Forest + 상관관계)
+
+### 분석 스크립트
+`analysis/multivariate_analysis.py`
+
+### 1. 피처 간 Spearman 상관관계
+- **대상**: 연속형 7개 피처 (person_ratio, text_ratio, color_saturation, color_brightness, color_warm_ratio, color_entropy, color_hue_std)
+- **방법**: `DataFrame.corr(method="spearman")` — 비정규분포에 강건한 순위 기반 상관계수
+- **시각화**: `corr_matrix.png` (하삼각 히트맵)
+- **해석 포인트**: text_ratio ↔ color_saturation 등 피처 간 중복 정보량 확인, 상관 높은 피처끼리 묶어 PPT에서 설명 가능
+
+### 2. Random Forest 피처 중요도
+- **학습**: RandomForestClassifier(n_estimators=300, max_depth=6)
+- **입력 피처**: 연속형 7개 + 범주형 수치화 5개 (person_count, head_pose_front, expression_sad/happy/neutral)
+- **타깃**: 연령 그룹 (0=~34세, 1=65세+)
+- **평가**: StratifiedKFold(5) CV 정확도 = **0.668 ± 0.013**
+- **시각화**: `rf_feature_importance.png`
+
+#### 중요도 순위 (MDI 기준)
+| 순위 | 피처 | 중요도 |
+|------|------|--------|
+| 1 | text_ratio (텍스트 비중) | **0.393** |
+| 2 | color_saturation (색상 채도) | 0.167 |
+| 3 | color_brightness (색상 밝기) | 0.076 |
+| 4 | color_entropy (색상 다양성) | 0.068 |
+| 5 | expression_sad (슬픔 확률) | 0.056 |
+| 6 | color_warm_ratio (따뜻한 색 비율) | 0.055 |
+| 7 | person_ratio (인물 비중) | 0.048 |
+| 8 | color_hue_std (색조 표준편차) | 0.047 |
+| 9 | expression_neutral (중립 확률) | 0.036 |
+| 10 | expression_happy (기쁨 확률) | 0.031 |
+| 11 | person_count (인물 수) | 0.021 |
+| 12 | head_pose_front (정면 응시) | 0.003 |
+
+### 핵심 결론
+- **텍스트 비중(text_ratio)이 압도적 1위** (중요도 39.3%) — 연령대 구분의 가장 강력한 단일 신호
+- **색상 피처 4종이 합산 약 35%** — 색상 팔레트 차이가 집합적으로 중요
+- **표정(expression_sad)은 5위** — 개별 단변량 분석 결과와 일치
+- **정면 응시(head_pose_front)는 최하위** — Chi-square에서도 약한 유의성(p=0.018)과 일치
+- **CV 정확도 66.8%** — 무작위(50%) 대비 유의미하게 높으나, 완벽 분리는 아님 → 썸네일 스타일은 연령대와 상관되지만 다른 맥락 변수(주제, 채널 특성 등)도 영향
+
+### 향후 개선 방향
+1. Logistic Regression으로 계수 방향(양/음) 직접 해석
+2. SHAP 값으로 개별 샘플 단위 기여도 시각화
+3. color_entropy ↔ color_hue_std 등 상관 높은 피처 제거 후 재실험
