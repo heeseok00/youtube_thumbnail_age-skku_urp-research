@@ -3,8 +3,9 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path("/home/urp_jwl2/26-1_URP")
-BIN_ROOT = Path("/home/urp_jwl2/urp_bin/SOCIETY 파일들 - 썸네일 사진 분석")
+ROOT = Path(__file__).resolve().parent.parent  # 26-1_URP
+# urp_bin은 보통 26-1_URP와 형제 디렉터리 (URP_backup/urp_bin/...)
+BIN_ROOT = ROOT.parent / "urp_bin" / "SOCIETY 파일들 - 썸네일 사진 분석"
 TARGET_SUBCAT = "시사/뉴스/사건"
 
 INPUT_CSV = ROOT / "Data/SOCIETY/SOCIETY_new_category_v3.csv"

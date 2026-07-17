@@ -8,11 +8,11 @@ import time
 import pandas as pd
 from pathlib import Path
 
-BASE    = Path("/home/urp_jwl2/26-1_URP")
+BASE    = Path(__file__).resolve().parent.parent
 DATA    = BASE / "Data/SOCIETY"
 PREFIX  = "SOCIETY_new_category_v3_add_thumnail_title"
 MERGED  = DATA / f"{PREFIX}_features_merged.csv"
-CKPT_DIR = BASE / "5_썸네일 피처 분석 파이프라인/checkpoints"
+CKPT_DIR = Path(__file__).resolve().parent / "checkpoints"
 
 EXPR_CKPT = CKPT_DIR / "06_facial_expression.csv"
 TEXT_CKPT = CKPT_DIR / "02_text_ratio.csv"

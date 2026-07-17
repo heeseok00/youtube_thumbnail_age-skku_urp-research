@@ -9,7 +9,8 @@ import os
 import pandas as pd
 from pathlib import Path
 
-BASE_DIR = Path("/home/urp_jwl2/26-1_URP")
+# 이 파일 기준 상위(26-1_URP) — 계정/절대경로에 의존하지 않음
+BASE_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_CSV = BASE_DIR / "Data/SOCIETY/SOCIETY_new_category_v3_add_thumnail_title.csv"
 
 

@@ -18,7 +18,7 @@ Society 카테고리 중 **시사/뉴스/사건** 서브카테고리만 대상�
 
 ```bash
 conda activate ytvenv
-cd /home/urp_jwl2/26-1_URP/6_썸네일_attention_gradcam
+cd /path/to/26-1_URP/6_썸네일_attention_gradcam
 ```
 
 ### ytvenv 주의 (transformers ↔ PyTorch)
@@ -45,7 +45,7 @@ Jupyter 커널도 **Python 3.10 (ytvenv)** 로 선택해야 합니다.
 
 ```bash
 conda activate ytvenv
-cd /home/urp_jwl2/26-1_URP/6_썸네일_attention_gradcam
+cd /path/to/26-1_URP/6_썸네일_attention_gradcam
 
 # (선택) merged CSV만 먼저 만들기
 python build_news_merged_csv.py
@@ -57,8 +57,10 @@ jupyter notebook attention_gradcam_news.ipynb
 
 ## 설정 (노트북 §1)
 
+경로는 절대경로가 아니라 **상대경로**로 잡습니다 (`26-1_URP`와 형제인 `urp_bin/`).
+
 - **입력:** `26-1_URP/Data/SOCIETY/SOCIETY_new_category_v3.csv`
-- **DINOv2 피처:** `urp_bin/.../SOCIETY_final_kr_clean_with_dinov2_768_fixed.csv`
+- **DINOv2 피처:** `urp_bin/SOCIETY 파일들 - 썸네일 사진 분석/SOCIETY_final_kr_clean_with_dinov2_768_fixed.csv`
 - **썸네일:** `26-1_URP/Data/SOCIETY/thumbnails/`
 - **서브카테고리:** `시사/뉴스/사건`
 
