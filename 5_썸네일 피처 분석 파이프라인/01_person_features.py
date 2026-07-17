@@ -25,27 +25,36 @@ from utils import (
 )
 
 CHECKPOINT = Path(__file__).parent / "checkpoints/01_person_features.csv"
+WEIGHTS = Path(__file__).parent.parent / "yolov8s-seg.pt"
 COLS = ["person_ratio", "person_count"]
 
 
 def extract_person_features(img_path: str, model) -> dict:
-    """YOLOv8s-seg 한 번 추론으로 인물 비중 + 인물 수 동시 추출."""
+    """YOLOv8s-seg 한 번 추론으로 인물 비중 + 인물 수 동시 추출.
+
+    person_ratio: 원본 해상도 기준 인물 마스크 합집합 면적 / 전체 픽셀
+    (모델 해상도 마스크를 orig_shape로 리사이즈하고, 겹침은 union으로 처리)
+    """
     try:
+        import torch.nn.functional as F
+
         results = model(img_path, classes=[0], verbose=False, conf=0.2)
         result = results[0]
         h, w = result.orig_shape
         total_pixels = h * w
 
-        count = 0
-        person_pixels = 0
+        if result.masks is None or len(result.masks) == 0:
+            return {"person_ratio": 0.0, "person_count": 0}
 
-        if result.masks is not None and len(result.masks) > 0:
-            count = len(result.masks)
-            for mask in result.masks.data:
-                person_pixels += int(mask.cpu().numpy().sum())
-
-        ratio = min(person_pixels / total_pixels, 1.0) if total_pixels > 0 else 0.0
-        return {"person_ratio": round(ratio, 6), "person_count": count}
+        # masks.data: (N, mh, mw) — 추론 해상도. 원본 크기로 올린 뒤 합집합.
+        masks = result.masks.data.float()  # (N, mh, mw)
+        count = int(masks.shape[0])
+        masks_orig = F.interpolate(
+            masks.unsqueeze(0), size=(h, w), mode="bilinear", align_corners=False
+        )[0]  # (N, H, W)
+        union = (masks_orig > 0.5).any(dim=0)
+        ratio = float(union.sum().item() / total_pixels) if total_pixels > 0 else 0.0
+        return {"person_ratio": round(min(ratio, 1.0), 6), "person_count": count}
 
     except Exception as e:
         print(f"[오류] {img_path}: {e}")
@@ -90,7 +99,8 @@ def main(args):
     print(f"[남은 작업] {len(remaining):,}건")
 
     if len(remaining) > 0:
-        model = YOLO("yolov8s-seg.pt")  # nano → small 업그레이드
+        weights = str(WEIGHTS) if WEIGHTS.exists() else "yolov8s-seg.pt"
+        model = YOLO(weights)
         for i, (_, row) in enumerate(tqdm(remaining.iterrows(), total=len(remaining), desc="인물 피처 추출")):
             img_path = resolve_thumbnail_path(row["thumbnail_path"])
             features = extract_person_features(str(img_path), model)

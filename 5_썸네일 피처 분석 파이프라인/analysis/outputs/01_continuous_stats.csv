@@ -1,5 +1,5 @@
 feature,label,n_young,n_old,mean_young,mean_old,p_value,significance
-person_ratio,인물 비중,2795,3082,0.0899,0.0993,0.0,***
+person_ratio,인물 비중,2795,3082,0.2271,0.2468,7e-06,***
 text_ratio,텍스트 비중,2795,3082,0.2343,0.3445,0.0,***
 color_saturation,색상 채도,2795,3082,77.7747,92.4351,0.0,***
 color_brightness,색상 밝기,2795,3082,124.5848,118.4455,0.0,***
