@@ -1,0 +1,13 @@
+feature,label,importance
+text_ratio,텍스트 비중,0.39328869459482046
+color_saturation,색상 채도,0.16711049481979678
+color_brightness,색상 밝기,0.07581602834214023
+color_entropy,색상 다양성,0.06760835938015171
+expression_sad,슬픔 확률,0.05554042270506538
+color_warm_ratio,따뜻한 색 비율,0.05517403840750286
+person_ratio,인물 비중,0.048017418335041896
+color_hue_std,색조 표준편차,0.04674089853829982
+expression_neutral,중립 확률,0.035639393619408606
+expression_happy,기쁨 확률,0.030948037432381763
+person_count,인물 수,0.020951448782117913
+head_pose_front,정면 응시,0.0031647650432725274

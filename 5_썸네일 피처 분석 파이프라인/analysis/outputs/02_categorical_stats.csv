@@ -1,0 +1,4 @@
+feature,label,chi2,p_value,dof,significance
+person_count_cat,인물 수,31.369,1e-06,3,***
+head_pose,인물 시선(헤드포즈),19.409,6.1e-05,2,***
+expression_dominant,인물 표정,46.9788,0.0,6,***

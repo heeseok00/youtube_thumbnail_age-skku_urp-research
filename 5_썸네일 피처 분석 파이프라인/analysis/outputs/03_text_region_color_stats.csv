@@ -1,0 +1,8 @@
+feature,label,n_young,n_old,mean_young,mean_old,p_value,significance
+text_color_entropy,텍스트 ROI 색 다양성,2445,2863,2.4475,2.7785,0.0,***
+text_color_saturation,텍스트 ROI 채도,2445,2863,94.7683,122.5698,0.0,***
+text_color_brightness,텍스트 ROI 밝기,2445,2863,137.6449,127.079,0.0,***
+text_color_hue_std,텍스트 ROI 색조 std,2445,2863,30.9985,33.3471,0.0,***
+bg_color_entropy,배경 ROI 색 다양성,2445,2863,2.25,2.2051,0.008173,**
+text_bg_entropy_diff,텍스트-배경 entropy 차,2445,2863,0.1975,0.5734,0.0,***
+text_bg_saturation_diff,텍스트-배경 채도 차,2445,2863,16.6384,36.4154,0.0,***

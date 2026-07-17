@@ -35,9 +35,11 @@
 git clone https://github.com/heeseok00/youtube_thumbnail_age-skku_urp-research.git
 cd youtube_thumbnail_age-skku_urp-research
 
-conda env create -f ytvenv.yaml
+conda env create -f envs/ytvenv.yaml
 conda activate ytvenv
 ```
+
+Other pipelines use separate envs; see [`envs/README.md`](envs/README.md) (`urp`, `vlm_env`, `urp_bin`).
 
 프로젝트 루트에 `.env`를 두고 YouTube API 키를 넣습니다 (`.gitignore` 대상).
 
@@ -62,7 +64,7 @@ YOUTUBE_API_KEY=발급받은_키
 | 배치 | `yt_all_collect.bat` | 카테고리별 `02` 실행 예시 |
 | 노트북 | `07.thumbnail_age_pipeline.ipynb` | 준비 → 임베딩 → 채널 평균 → UMAP/t-SNE |
 | 노트북 | `06_channel_clustering.ipynb` | 채널 벡터 K-means(실루엣 k 탐색) + UMAP 색상 플롯 |
-| 환경 | `ytvenv.yaml` | conda 환경 고정 (PyTorch cu128 등은 주석·공식 안내 참고) |
+| 환경 | `envs/*.yaml` | Linux 서버에서 export한 conda 환경 (ytvenv, urp, vlm_env, urp_bin) |
 
 ### 데이터 CSV (예시 이름)
 

@@ -10,8 +10,10 @@ __pycache__/
 *.ipynb_checkpoints
 
 # ── 가상환경 ──────────────────────────────────────────────────────────────
-# conda 환경 yaml은 추적 (ytvenv.yaml 유지)
-envs/
+# conda 환경 yaml은 envs/ 에서 추적 (yaml·README만 추적, 나머지는 무시)
+envs/*
+!envs/*.yaml
+!envs/README.md
 venv/
 .venv/
 ytvenv/
@@ -25,6 +27,10 @@ Sample_images/
 # ── 임베딩 (대용량 바이너리) ──────────────────────────────────────────────
 artifacts/embeddings/**/*.npy
 artifacts/**/embeddings/**/*.npy
+
+# ── attention/gradcam 대용량 산출물 (재실행으로 재현 가능) ────────────────
+6_썸네일_attention_gradcam/outputs/
+*.pkl
 
 # ── 데이터 백업 zip ───────────────────────────────────────────────────────
 *.zip
