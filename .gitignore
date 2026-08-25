@@ -31,6 +31,8 @@ artifacts/**/embeddings/**/*.npy
 # ── attention/gradcam 대용량 산출물 (재실행으로 재현 가능) ────────────────
 6_썸네일_attention_gradcam/outputs/
 7_HEALTH_다이어트_분석/*/outputs/
+7_HEALTH_다이어트_분석/*/checkpoints/
+8_ALL_categories_gradcam/outputs/
 *.pkl
 
 # ── 데이터 백업 zip ───────────────────────────────────────────────────────

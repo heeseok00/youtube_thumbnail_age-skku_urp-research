@@ -30,10 +30,10 @@ df = load_diet_sample()   # video_id, age_group, title, resolved_path(썸네일 
 
 | 폴더 | 내용 | 비고 |
 |------|------|------|
-| `01_gradcam/` | Grad-CAM (`gradcam_diet.ipynb`) | `URP_논문/gradcam/gradcam_v4.ipynb` 기반 튜닝 완료 |
-| `02_image_caption/` | 이미지 캡션 분석 | 〃 |
-| `03_title_analysis/` | 제목 분석 | 〃 |
-| `04_visual_features/` | 썸네일 시각 피처 분석 | 기존 `5_썸네일 피처 분석 파이프라인` 기반 |
+| `01_gradcam/` | Grad-CAM (`gradcam_diet.ipynb`) | 실행 완료 (정확도 71.8%) |
+| `02_image_caption/` | 이미지 캡션 분석 (LLaVA + XGBoost/SHAP) | 실행 완료 (정확도 62.2%, p=2.7e-08) |
+| `03_title_analysis/` | 제목 분석 (피처 SHAP + RoBERTa/LIME) | 실행 완료 (XGB AUC 0.688, RoBERTa AUC 0.885) |
+| `04_visual_features/` | 썸네일 시각 피처 분석 | 기존 `5_썸네일 피처 분석 파이프라인` 기반 튜닝 완료, 실행 대기 |
 
 ## 공통 규칙
 
