@@ -2,7 +2,7 @@
 4카테고리 통합 Grad-CAM 파이프라인 (DINOv2-base).
 
 Stages:
-  prepare | train | eval | gradcam | roi | all
+  prepare | train | eval | gradcam | roi | camshare | all
 
 Usage:
   python prepare_data.py
@@ -110,18 +110,9 @@ class DinoBinaryClassifier(nn.Module):
 
 def get_device():
     if torch.cuda.is_available():
-        # 여유 VRAM이 더 큰 GPU 선택
-        free = []
-        for i in range(torch.cuda.device_count()):
-            try:
-                free_b, _ = torch.cuda.mem_get_info(i)
-                free.append((free_b, i))
-            except Exception:
-                free.append((0, i))
-        free.sort(reverse=True)
-        idx = free[0][1]
-        torch.cuda.set_device(idx)
-        return f"cuda:{idx}"
+        # pytorch-grad-cam이 DataParallel(device_ids[0]=cuda:0)을 쓰므로 0번 고정
+        torch.cuda.set_device(0)
+        return "cuda:0"
     return "cpu"
 
 
@@ -823,11 +814,247 @@ def stage_roi(model, processor, cam, correct_65, correct_34, device):
     print("ROI stage complete.")
 
 
+# ── CAM energy per ROI (heatmap × text/person/background) ─────────────────────
+CAMSHARE_SUMMARY = STAGE_DIR / "cam_roi_share_summary.csv"
+HOT_THR = 0.5
+
+
+def exclusive_roi_masks(masks: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
+    """겹친 픽셀은 text → person → background 순으로 한 영역에만 할당."""
+    text = masks["text"].astype(bool)
+    person = masks["person"].astype(bool) & ~text
+    background = ~(text | masks["person"].astype(bool))
+    return {"text": text, "person": person, "background": background}
+
+
+def cam_region_stats(cam_map: np.ndarray, excl: dict[str, np.ndarray]) -> dict[str, dict[str, float]]:
+    """히트맵 에너지가 각 ROI에 얼마나 모였는지.
+
+    share         : Σ(CAM ⊙ M) / Σ(CAM)          — 에너지 비율, 합=1
+    area          : 마스크 면적 비율
+    concentration : share / area                  — 1보다 크면 면적 대비 과활성화
+    hot_share     : CAM≥0.5 픽셀 중 해당 ROI 비율 — jet에서 노란~빨간 '켜진' 부분
+    mean_act      : ROI 안 평균 CAM
+    """
+    cam_map = np.clip(np.asarray(cam_map, dtype=np.float64), 0.0, None)
+    total = float(cam_map.sum())
+    if total <= 0:
+        total = 1e-12
+    hot = cam_map >= HOT_THR
+    n_hot = max(int(hot.sum()), 1)
+    out: dict[str, dict[str, float]] = {}
+    for name, mask in excl.items():
+        area = float(mask.mean())
+        energy = float(cam_map[mask].sum()) if mask.any() else 0.0
+        share = energy / total
+        out[name] = {
+            "area": area,
+            "share": share,
+            "concentration": (share / area) if area > 0 else float("nan"),
+            "hot_share": float(hot[mask].sum()) / n_hot,
+            "mean_act": float(cam_map[mask].mean()) if mask.any() else 0.0,
+        }
+    return out
+
+
+def stage_camshare(model, processor, cam, correct_65, correct_34, device):
+    """top-50 정답 히트맵을 text/person/background 에너지 비율로 집계."""
+    import easyocr
+    from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
+    from ultralytics import YOLO
+
+    def get_pixel_values(img_pil):
+        inputs = processor(images=img_pil, return_tensors="pt")
+        pv = inputs["pixel_values"].to(device)
+        _, _, H, W = pv.shape
+        return pv, H, W
+
+    def get_cam(pixel_values, target_class):
+        return cam(input_tensor=pixel_values, targets=[ClassifierOutputTarget(target_class)])[0]
+
+    def build_roi_masks(image_path, H, W):
+        img_orig = Image.open(image_path).convert("RGB")
+        orig_W, orig_H = img_orig.size
+        img_np = np.array(img_orig)
+        mask_text = np.zeros((orig_H, orig_W), dtype=bool)
+        mask_person = np.zeros((orig_H, orig_W), dtype=bool)
+        for bbox, _text, conf in ocr_reader.readtext(
+            img_np, detail=1, paragraph=False,
+            min_size=10, text_threshold=0.4, low_text=0.3,
+            link_threshold=0.3, width_ths=0.8,
+            contrast_ths=0.05, adjust_contrast=0.7,
+        ):
+            if conf < 0.3:
+                continue
+            pts = np.array(bbox, dtype=np.int32)
+            x0, y0 = pts[:, 0].min(), pts[:, 1].min()
+            x1, y1 = pts[:, 0].max(), pts[:, 1].max()
+            x0, y0 = max(0, x0), max(0, y0)
+            x1, y1 = min(orig_W, x1), min(orig_H, y1)
+            mask_text[y0:y1, x0:x1] = True
+        yolo_device = 0 if str(device).startswith("cuda") else "cpu"
+        for box in yolo_model(img_np, verbose=False, device=yolo_device)[0].boxes:
+            if int(box.cls[0]) != 0 or float(box.conf[0]) < 0.3:
+                continue
+            x0, y0, x1, y1 = box.xyxy[0].cpu().numpy().astype(int)
+            x0, y0 = max(0, x0), max(0, y0)
+            x1, y1 = min(orig_W, x1), min(orig_H, y1)
+            mask_person[y0:y1, x0:x1] = True
+
+        def resize_mask(m):
+            return np.array(
+                Image.fromarray(m.astype(np.uint8) * 255).resize((W, H), Image.NEAREST)
+            ) > 127
+
+        return {
+            "text": resize_mask(mask_text),
+            "person": resize_mask(mask_person),
+            "background": resize_mask(~(mask_text | mask_person)),
+        }
+
+    cache_file = OUT_DIR / "roi_masks_cache.pkl"
+    if cache_file.exists():
+        print("Loading ROI cache:", cache_file)
+        with open(cache_file, "rb") as f:
+            roi_cache = pickle.load(f)
+    else:
+        roi_cache = {}
+
+    ocr_reader = None
+    yolo_model = None
+
+    def ensure_detectors():
+        nonlocal ocr_reader, yolo_model
+        if ocr_reader is None:
+            print("Initializing EasyOCR...")
+            ocr_reader = easyocr.Reader(["ko", "en"], gpu=str(device).startswith("cuda"), verbose=False)
+            print("Initializing YOLOv8...", YOLO_WEIGHTS)
+            yolo_model = YOLO(str(YOLO_WEIGHTS))
+
+    def resize_mask_hw(m, H, W):
+        return np.array(
+            Image.fromarray(m.astype(np.uint8) * 255).resize((W, H), Image.NEAREST)
+        ) > 127
+
+    def get_roi_masks(image_path, H, W):
+        key = (image_path, H, W)
+        if key in roi_cache:
+            return roi_cache[key]
+        for (p, _h, _w), masks in roi_cache.items():
+            if p == image_path:
+                resized = {k: resize_mask_hw(v, H, W) for k, v in masks.items()}
+                roi_cache[key] = resized
+                return resized
+        ensure_detectors()
+        roi_cache[key] = build_roi_masks(image_path, H, W)
+        return roi_cache[key]
+
+    def analyze_group(sample_df, label):
+        rows = []
+        sample_df = sample_df.head(ANALYSIS_N).reset_index(drop=True)
+        for i, row in sample_df.iterrows():
+            path = row["resolved_path"]
+            try:
+                img_orig = Image.open(path).convert("RGB")
+                pv, H, W = get_pixel_values(img_orig)
+                pred_class = int(row["pred"]) if "pred" in row.index and pd.notna(row["pred"]) else None
+                if pred_class is None:
+                    with torch.no_grad():
+                        pred_class = int(torch.argmax(model(pv), dim=1).item())
+                cam_map = get_cam(pv, pred_class)
+                stats = cam_region_stats(cam_map, exclusive_roi_masks(get_roi_masks(path, H, W)))
+                rec = {
+                    "group": label,
+                    "category": row.get("category", ""),
+                    "video_id": row.get("video_id", ""),
+                    "channel_id": row.get("channel_id", ""),
+                    "resolved_path": path,
+                    "pred": pred_class,
+                    "prob_65": row.get("prob_65", np.nan),
+                }
+                for rname, vals in stats.items():
+                    for k, v in vals.items():
+                        rec[f"{k}_{rname}"] = v
+                rows.append(rec)
+            except Exception as e:
+                print(f"  WARNING skip {Path(str(path)).name}: {e}")
+            if (i + 1) % 10 == 0:
+                print(f"  [{label}] {i+1}/{len(sample_df)}")
+        return pd.DataFrame(rows)
+
+    print("[camshare] CAM energy × ROI on top-50 correct grids")
+    df65 = analyze_group(correct_65, "65~")
+    df34 = analyze_group(correct_34, "~34")
+    with open(cache_file, "wb") as f:
+        pickle.dump(roi_cache, f)
+    print("Cache updated:", cache_file, "n=", len(roi_cache))
+    per_image = pd.concat([df65, df34], ignore_index=True)
+    per_path = OUT_DIR / "cam_roi_share_per_image.csv"
+    per_image.to_csv(per_path, index=False, encoding="utf-8-sig")
+    print("Saved:", per_path)
+
+    regions = ["text", "person", "background"]
+    metrics = ["area", "share", "concentration", "hot_share", "mean_act"]
+    summary_rows = []
+    for group, gdf in per_image.groupby("group", sort=False):
+        for region in regions:
+            rec = {"group": group, "region": region, "n": len(gdf)}
+            for metric in metrics:
+                col = f"{metric}_{region}"
+                rec[f"{metric}_mean"] = float(gdf[col].mean())
+                rec[f"{metric}_std"] = float(gdf[col].std(ddof=1)) if len(gdf) > 1 else 0.0
+            summary_rows.append(rec)
+    summary = pd.DataFrame(summary_rows)
+    out_summary = OUT_DIR / "cam_roi_share_summary.csv"
+    summary.to_csv(out_summary, index=False, encoding="utf-8-sig")
+    summary.to_csv(CAMSHARE_SUMMARY, index=False, encoding="utf-8-sig")
+    print("Saved:", out_summary)
+    print("Saved:", CAMSHARE_SUMMARY)
+
+    print("\nCAM share (predicted-class heatmap, exclusive ROI)")
+    print(f"{'group':<8} {'region':<12} {'area%':>8} {'share%':>8} {'conc':>7} {'hot%':>8}")
+    for rec in summary_rows:
+        print(
+            f"{rec['group']:<8} {rec['region']:<12} "
+            f"{rec['area_mean']*100:7.1f}% {rec['share_mean']*100:7.1f}% "
+            f"{rec['concentration_mean']:7.2f} {rec['hot_share_mean']*100:7.1f}%"
+        )
+
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    x = np.arange(len(regions))
+    width = 0.36
+    colors = {"~34": "#5dade2", "65~": "#e74c3c"}
+    for ax, metric, title, ylabel in [
+        (axes[0], "share", "CAM energy share", "Share of heatmap energy"),
+        (axes[1], "hot_share", f"Activated pixels (CAM ≥ {HOT_THR})", "Share of hot pixels"),
+    ]:
+        for i, group in enumerate(["~34", "65~"]):
+            means = [
+                float(summary.loc[(summary.group == group) & (summary.region == r), f"{metric}_mean"].iloc[0])
+                for r in regions
+            ]
+            ax.bar(x + (i - 0.5) * width, means, width, label=group, color=colors[group], alpha=0.9)
+        ax.set_xticks(x)
+        ax.set_xticklabels(["text", "person", "background"])
+        ax.set_ylim(0, 1)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title)
+        ax.legend()
+        ax.grid(axis="y", alpha=0.3)
+    plt.suptitle("Grad-CAM activation by ROI  |  top-50 correct, predicted-class heatmap", fontsize=11)
+    plt.tight_layout()
+    fig_path = OUT_DIR / "cam_roi_share_bars.png"
+    plt.savefig(fig_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print("Saved:", fig_path)
+    print("CAM-share stage complete.")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--stage",
-        choices=["train", "eval", "gradcam", "roi", "all"],
+        choices=["train", "eval", "gradcam", "roi", "camshare", "all"],
         default="all",
     )
     args = parser.parse_args()
@@ -855,17 +1082,19 @@ def main():
     if args.stage in ("eval", "all"):
         stage_eval(model, processor, test_df, device)
 
-    if args.stage in ("gradcam", "roi", "all"):
+    cam = correct_65 = correct_34 = None
+    if args.stage in ("gradcam", "all"):
         cam, correct_65, correct_34 = stage_gradcam(model, processor, test_df, device)
-    else:
-        cam = correct_65 = correct_34 = None
 
-    if args.stage in ("roi", "all"):
+    if args.stage in ("roi", "camshare", "all"):
         if cam is None:
             cam = make_cam(model)
             correct_65 = pd.read_csv(OUT_DIR / "samples_correct_65_top50.csv")
             correct_34 = pd.read_csv(OUT_DIR / "samples_correct_34_top50.csv")
-        stage_roi(model, processor, cam, correct_65, correct_34, device)
+        if args.stage in ("roi", "all"):
+            stage_roi(model, processor, cam, correct_65, correct_34, device)
+        if args.stage in ("camshare", "all"):
+            stage_camshare(model, processor, cam, correct_65, correct_34, device)
 
     print("\nAll done. outputs →", OUT_DIR)
 
