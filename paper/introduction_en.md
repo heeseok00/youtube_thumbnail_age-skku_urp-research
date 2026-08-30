@@ -16,7 +16,7 @@ A few studies look at age and thumbnails more directly. Kim and Kim (2025) surve
 
 Most prior comparisons stay inside one topic: harmful content, news, or beauty, for example. That is a good way to describe the local habit of a genre. It is a weak way to tell whether a difference belongs only to that topic or turns up again elsewhere. If the goal is age-related style, a gap found in one category should not be treated as a property of the age group. Signals that keep the same direction across categories need to be separated from signals that appear only in one topic.
 
-Two gaps follow from this literature. Few studies compare how the thumbnails and titles of ordinary information content relate to age across categories. Image and text have also usually been analyzed on their own, so the style that the two modalities form together has been left thin.
+Two gaps remain in the prior work. Few studies compare how the thumbnails and titles of ordinary information content relate to age across categories. Image and text have also usually been analyzed separately, so the style formed by the two modalities together has not been adequately described.
 
 This paper analyzes thumbnail and title style associated with the 34-and-under and 65-and-over groups in four categories: EDU, HEALTH, LIFESTYLE, and SOCIETY. The aim is to split cross-category signals, which hold the same direction in all four categories, from category-specific signals, which appear in only one category or change direction. The comparison is meant to keep a single topic's habit from being read as the style of an age group, while still showing which age-related forms repeat across information domains.
 
