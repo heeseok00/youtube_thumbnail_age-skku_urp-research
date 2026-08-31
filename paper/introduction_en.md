@@ -18,7 +18,7 @@ Most prior comparisons remain within a single topic, such as harmful content, ne
 
 Two gaps remain in the prior work. Few studies compare how the thumbnails and titles of ordinary information content relate to age across categories. Image and text have also usually been analyzed separately, so the style formed by the two modalities together has not been adequately described.
 
-This paper analyzes thumbnail and title style associated with the 34-and-under and 65-and-over groups in four categories: EDU, HEALTH, LIFESTYLE, and SOCIETY. The aim is to separate cross-category signals, which are consistent in direction across all four categories, from category-specific signals, which appear in only one category or reverse direction. The comparison is intended to prevent a convention found in a single topic from being treated as the style of an age group, while still identifying age-related forms that recur across information domains.
+This paper analyzes thumbnail and title style associated with the 34-and-under and 65-and-over groups in four categories: EDU, HEALTH, LIFESTYLE (meditation), and SOCIETY. The aim is to separate cross-category signals, which are consistent in direction across all four categories, from category-specific signals, which appear in only one category or reverse direction. The comparison is intended to prevent a convention found in a single topic from being treated as the style of an age group, while still identifying age-related forms that recur across information domains.
 
 The analysis does not begin with a predefined feature list. A fixed list can miss cues that were not anticipated. A model is therefore trained first to distinguish the two age groups from the thumbnail alone. The regions it uses are inspected, and only then are those regions operationalized as physical features and semantic units. A DINOv3 image classifier and Grad-CAM are used for this search. Grad-CAM is not taken as a conclusion about age-related style; it marks candidate regions for later tests.
 
@@ -27,7 +27,7 @@ These candidates are then examined at three layers. The first layer quantifies v
 Two research questions follow.
 
 - **RQ1.** How do the physical and semantic visual signals of thumbnails, and the formal and lexical properties of titles, differ between content associated with people aged 34 and under and content associated with people aged 65 and over?
-- **RQ2.** Do these age-related multimodal signals appear across EDU, HEALTH, LIFESTYLE, and SOCIETY, or do they change with category context?
+- **RQ2.** Do these age-related multimodal signals appear across EDU, HEALTH, LIFESTYLE (meditation), and SOCIETY, or do they change with category context?
 
 In thumbnails associated with the 65-and-over group, large text regions and strong text–background contrast appeared in all four categories. Grad-CAM and ROI analyses also identified person regions as discriminative cues in correctly classified 65-and-over cases, but differences in person area, expression, action, and background scenes varied by category. Titles associated with the 65-and-over group were longer on average and used vocabulary of life circumstances, illness, religion, and self-cultivation. Titles associated with the 34-and-under group used more loanwords and terms for content format and activity. Age-related style, on this evidence, combines conventions that cut across categories with conventions that remain genre-specific, rather than a single fixed grammar.
 

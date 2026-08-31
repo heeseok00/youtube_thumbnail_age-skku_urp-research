@@ -8,7 +8,7 @@ Grad-CAM is an explanation method that shows, as a heatmap, which parts of an im
 
 ### Data and Model Configuration
 
-The classifier used 9,416 thumbnails collected from four categories: EDU, HEALTH, LIFESTYLE, and SOCIETY (~34: 4,751; 65~: 4,665). The data were split 8:2 so that the two age groups kept similar proportions in the training and test sets (7,532 training images, 1,884 test images; random seed = 42). The category-level sample is reported in the data collection section. Image classification used the pretrained vision model DINOv3 (`facebook/dinov3-vitb16-pretrain-lvd1689m`). A pretrained vision model learns general visual structure, including shape, texture, objects, and spatial layout, from large image collections. To use these representations, the DINOv3 backbone was frozen and a classification head was added to separate ~34 from 65~. The head was trained for 5 epochs (Adam, learning rate = 0.001, batch size = 16).
+The classifier used 9,416 thumbnails collected from four categories: EDU, HEALTH, LIFESTYLE (meditation), and SOCIETY (~34: 4,751; 65~: 4,665). The data were split 8:2 so that the two age groups kept similar proportions in the training and test sets (7,532 training images, 1,884 test images; random seed = 42). The category-level sample is reported in the data collection section. Image classification used the pretrained vision model DINOv3 (`facebook/dinov3-vitb16-pretrain-lvd1689m`). A pretrained vision model learns general visual structure, including shape, texture, objects, and spatial layout, from large image collections. To use these representations, the DINOv3 backbone was frozen and a classification head was added to separate ~34 from 65~. The head was trained for 5 epochs (Adam, learning rate = 0.001, batch size = 16).
 
 ### Explainability Evaluation
 
@@ -23,7 +23,7 @@ Grad-CAM was applied to the last Transformer block of DINOv3. For qualitative an
 | ~34 | .757 | .842 | .797 |
 | 65~ | .818 | .725 | .769 |
 
-Test-set accuracy was .784, and balanced accuracy was .783. The two groups could be separated from the thumbnail image alone, without predefined features. This indicates that visual style signals associated with age are present in the images. Accuracy by category was LIFESTYLE .867, EDU .822, SOCIETY .749, and HEALTH .721. Misclassifications from 65~ to ~34 (257) also outnumbered those from ~34 to 65~ (150). In borderline cases, 65~ thumbnails were more often judged as the younger group.
+Test-set accuracy was .784, and balanced accuracy was .783. The two groups could be separated from the thumbnail image alone, without predefined features. This indicates that visual style signals associated with age are present in the images. Accuracy by category was LIFESTYLE (meditation) .867, EDU .822, SOCIETY .749, and HEALTH .721. Misclassifications from 65~ to ~34 (257) also outnumbered those from ~34 to 65~ (150). In borderline cases, 65~ thumbnails were more often judged as the younger group.
 
 ### Grad-CAM and ROI Results
 
