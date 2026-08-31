@@ -109,12 +109,16 @@ def render(model, processor, cam, df, group, save_path):
             for s in ax.spines.values():
                 s.set_visible(False)
         if c == 0:
-            ax_o.set_ylabel(CATEGORY_LABEL[row["category"]], fontsize=11, labelpad=8)
-        ax_o.set_title("original", fontsize=8)
-        ax_c.set_title("Grad-CAM", fontsize=8)
+            ax_o.set_ylabel(
+                CATEGORY_LABEL[row["category"]], fontsize=17, fontweight="bold", labelpad=10
+            )
+        ax_o.set_title("original", fontsize=13, fontweight="bold")
+        ax_c.set_title("Grad-CAM", fontsize=13, fontweight="bold")
 
     label = "65+" if group == "65" else "~34"
-    fig.suptitle(f"Grad-CAM for correctly classified {label} thumbnails", fontsize=13)
+    fig.suptitle(
+        f"Grad-CAM for correctly classified {label} thumbnails", fontsize=20, fontweight="bold"
+    )
     fig.tight_layout(rect=(0, 0, 1, 0.97))
     fig.savefig(save_path, dpi=200, bbox_inches="tight")
     plt.close(fig)
