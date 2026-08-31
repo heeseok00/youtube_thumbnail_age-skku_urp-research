@@ -95,11 +95,14 @@ class DinoBinaryClassifier(nn.Module):
         )
 
     def encoder_layers(self):
-        # DINOv2: backbone.encoder.layer / DINOv3: backbone.model.layer
+        # DINOv2: backbone.encoder.layer / DINOv3: backbone.model.layer (transformers < 4.57)
+        # or backbone.layer (transformers >= 4.57)
         if hasattr(self.backbone, "encoder") and hasattr(self.backbone.encoder, "layer"):
             return self.backbone.encoder.layer
         if hasattr(self.backbone, "model") and hasattr(self.backbone.model, "layer"):
             return self.backbone.model.layer
+        if hasattr(self.backbone, "layer"):
+            return self.backbone.layer
         raise AttributeError("Cannot locate transformer layers on backbone")
 
     def forward(self, pixel_values):
@@ -216,13 +219,25 @@ def stage_train(device):
     return model, processor, train_df, test_df
 
 
+def adapt_state_dict(state_dict, model):
+    """transformers 4.57부터 DINOv3 백본이 backbone.model.layer → backbone.layer로 바뀌어,
+    이전 버전에서 저장한 체크포인트 키를 현재 모듈 경로에 맞춘다."""
+    expected = set(model.state_dict().keys())
+    if set(state_dict.keys()) == expected:
+        return state_dict
+    remapped = {k.replace("backbone.model.", "backbone.", 1): v for k, v in state_dict.items()}
+    if set(remapped.keys()) != expected:
+        raise RuntimeError("Checkpoint keys do not match the model after remapping")
+    return remapped
+
+
 def load_trained(device):
     if not MODEL_CKPT.exists():
         raise FileNotFoundError(MODEL_CKPT)
     ckpt = torch.load(MODEL_CKPT, map_location="cpu", weights_only=False)
     processor = AutoImageProcessor.from_pretrained(ckpt["model_name"])
     model = DinoBinaryClassifier(ckpt["model_name"]).to(device)
-    model.load_state_dict(ckpt["state_dict"])
+    model.load_state_dict(adapt_state_dict(ckpt["state_dict"], model))
     for p in model.backbone.parameters():
         p.requires_grad = False
     for p in model.encoder_layers()[-1].parameters():

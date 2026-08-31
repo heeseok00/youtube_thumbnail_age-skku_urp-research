@@ -35,7 +35,7 @@ Test-set accuracy was .784 and balanced accuracy was .783 (Table 2.2). The thumb
 | ~34 | .757 | .842 | .797 |
 | 65+ | .818 | .725 | .769 |
 
-In the top-50 correct 65+ cases, activation tended to lie on large text and on people, including faces and upper bodies. In the top-50 correct ~34 cases, activation was more widely spread across background, people, text, and objects. Figure 1 illustrates this pattern with one exemplar from each of EDU, HEALTH, LIFESTYLE, and SOCIETY, drawn from the channel-deduplicated high-confidence top 50. The full 50-image grids are in Appendix A (Figures A2 and A3).
+In the top-50 correct 65+ cases, activation tended to lie on large text and on people, including faces and upper bodies. In the top-50 correct ~34 cases, activation was more widely spread across background, people, text, and objects. Figure 1 illustrates this pattern with one exemplar from each of EDU, HEALTH, LIFESTYLE, and SOCIETY, drawn from the channel-deduplicated high-confidence top 50. Further exemplars, three per category, are in Appendix A (Figures A2 and A3).
 
 **[Insert Figure 1 here]**  
 **Figure 1.** Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one image per category; order EDU, HEALTH, LIFESTYLE, SOCIETY). Columns: original, predicted-class overlay, predicted-class heatmap.
@@ -91,10 +91,12 @@ Table A1 repeats the deletion and insertion tests one ROI at a time, using the o
 
 The two groups behave differently. In 65+ cases, masking a single ROI lowers the predicted probability and showing a single ROI recovers only about half of it, so person and text each carry part of the evidence, with person the densest per unit area. In ~34 cases, deletion of any single ROI leaves the probability near baseline and insertion of any single ROI already returns a probability above .98, so no single region is necessary and each is close to sufficient on its own. This is the pattern expected when the evidence is redundant across the frame, and it is why the ~34 area-normalized values, especially insN = 15.95 for the small text region, should not be read as a ranking of ROI importance.
 
+Figures A2 and A3 extend the exemplars in Figure 1 to three images per category, taken in confidence order from the same channel-deduplicated top-50 samples. Each pair shows the original thumbnail and the Grad-CAM overlay for the predicted class. The complete 50-image grids are available in the project repository.
+
 **[Insert Figure A2 here]**  
-**Figure A2.** Full 50-image Grad-CAM grid, correctly classified 65+ (`gradcam_correct_65_top50.png`).
+**Figure A2.** Grad-CAM for correctly classified 65+ thumbnails (three per category; rows EDU, HEALTH, LIFESTYLE, SOCIETY).
 
 **[Insert Figure A3 here]**  
-**Figure A3.** Full 50-image Grad-CAM grid, correctly classified ~34 (`gradcam_correct_34_top50.png`).
+**Figure A3.** Grad-CAM for correctly classified ~34 thumbnails (three per category; rows EDU, HEALTH, LIFESTYLE, SOCIETY).
 
 *Model identifier (for replication):* `facebook/dinov3-vitb16-pretrain-lvd1689m`.
