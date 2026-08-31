@@ -59,7 +59,7 @@ Table 2.3 reports where predicted-class heatmap energy fell on the same top-50 i
 
 *Note.* Overlapping pixels are assigned to text, then person, then background. Concentration > 1 means more heatmap energy than expected from area alone.
 
-Deletion and insertion curves for the 65+ top-50 sample were consistent with a usable map (deletion AUC = .494; insertion AUC = .725; Figure A1). After area normalization, person had the highest deletion and insertion importance: text shapes the overall impression through its large area, while person holds discriminative information in a smaller region (Table A1).
+Deletion and insertion curves for the 65+ top-50 sample were consistent with a usable map (deletion AUC = .494; insertion AUC = .725; Figure A1). After area normalization, person had the highest deletion and insertion importance: text shapes the overall impression through its large area, while person holds discriminative information in a smaller region. The same tests on ~34 cases show no single region to be necessary, which again points to evidence distributed across the frame (Table A1).
 
 ### Where later visual measures are focused
 
@@ -69,20 +69,27 @@ In sum, discriminative evidence lay on text and people in 65+ thumbnails and acr
 
 ## Appendix A. Grad-CAM faithfulness and full grids
 
-Deletion removes pixels in order of Grad-CAM importance and records the drop in predicted probability for the target class. Insertion starts from a blurred image and restores the same pixels in the same order. For the 65+ top-50 correct sample, deletion AUC was .494 and insertion AUC was .725. For the ~34 top-50 correct sample, deletion AUC was .871 and insertion AUC was .900: predicted probability stayed high even after important regions were removed, which is consistent with evidence spread across the image. Per-ROI deletion/insertion scores for ~34 are therefore left out of the main text.
+Deletion removes pixels in order of Grad-CAM importance and records the drop in predicted probability for the target class. Insertion starts from a blurred image and restores the same pixels in the same order. For the 65+ top-50 correct sample, deletion AUC was .494 and insertion AUC was .725. For the ~34 top-50 correct sample, deletion AUC was .871 and insertion AUC was .900: predicted probability stayed high even after important regions were removed, which is consistent with evidence spread across the image.
 
 **[Insert Figure A1 here]**  
 **Figure A1.** Deletion and insertion curves for the top-50 correct samples (left: 65+; right: ~34).
 
-Table A1 uses the original overlapping OCR and YOLO boxes (text + person + background can exceed 100%). delN = (original probability − deletion probability) / area; insN = insertion probability / area. Person has the highest area-normalized scores.
+Table A1 repeats the deletion and insertion tests one ROI at a time, using the original overlapping OCR and YOLO boxes (text + person + background can exceed 100%). Deletion masks the ROI and insertion shows only the ROI. delN = (baseline probability − deletion probability) / area; insN = insertion probability / area.
 
-**Table A1.** Overlapping ROI area and area-normalized deletion/insertion (65+ correct, n = 50)
+**Table A1.** Overlapping ROI area and area-normalized deletion/insertion (top-50 correct, n = 50 per group)
 
-| ROI | Area | Deletion (raw) | Insertion (raw) | delN | insN |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| text | 33.9% | .948 | .521 | 0.15 | 1.54 |
-| person | 25.9% | .854 | .543 | 0.56 | 2.10 |
-| background | 45.1% | .889 | .566 | 0.24 | 1.26 |
+| Group | ROI | Area | Deletion (raw) | Insertion (raw) | delN | insN |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 65+ | text | 33.9% | .948 | .521 | 0.15 | 1.54 |
+| 65+ | person | 25.9% | .854 | .543 | 0.56 | 2.10 |
+| 65+ | background | 45.1% | .889 | .566 | 0.24 | 1.26 |
+| ~34 | text | 6.2% | 1.000 | .989 | 0.00 | 15.95 |
+| ~34 | person | 20.6% | .997 | .993 | 0.02 | 4.82 |
+| ~34 | background | 74.5% | .974 | .995 | 0.03 | 1.33 |
+
+*Note.* Baseline probability was .999 for 65+ and 1.000 for ~34.
+
+The two groups behave differently. In 65+ cases, masking a single ROI lowers the predicted probability and showing a single ROI recovers only about half of it, so person and text each carry part of the evidence, with person the densest per unit area. In ~34 cases, deletion of any single ROI leaves the probability near baseline and insertion of any single ROI already returns a probability above .98, so no single region is necessary and each is close to sufficient on its own. This is the pattern expected when the evidence is redundant across the frame, and it is why the ~34 area-normalized values, especially insN = 15.95 for the small text region, should not be read as a ranking of ROI importance.
 
 **[Insert Figure A2 here]**  
 **Figure A2.** Full 50-image Grad-CAM grid, correctly classified 65+ (`gradcam_correct_65_top50.png`).
