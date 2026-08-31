@@ -44,20 +44,20 @@ In the top-50 correct 65+ cases, activation tended to lie on large text and on p
 
 (b) ~34: activation spread more widely across the scene.
 
-Table 2.3 reports where predicted-class heatmap energy fell on the same top-50 images. In 65+ cases, text and person together held 56.1% of heatmap energy (text 31.0%, person 25.1%). Text occupied 33.9% of the frame, so it is a large part of the layout rather than a small hot spot (concentration = 0.86). Person occupied 20.9% of the frame but 31.4% of pixels with CAM ≥ 0.5 (concentration = 1.42), so discriminative information was more densely packed in that smaller region. In ~34 cases, 72.4% of heatmap energy and 74.5% of high-activation pixels fell on the background.
+Table 2.3 reports where predicted-class heatmap energy fell on the same top-50 images. In 65+ cases, text and person together held 56.1% of heatmap energy (text 31.0%, person 25.1%). Text occupied 33.9% of the frame, slightly more than its 31.0% of heatmap energy, so it is a large part of the layout rather than a small hot spot (concentration = 0.91). Person occupied 20.9% of the frame but drew 25.1% of heatmap energy (concentration = 1.20) and 31.4% of pixels with CAM ≥ 0.5, so discriminative information was more densely packed in that smaller region. In ~34 cases, 72.4% of heatmap energy and 74.5% of high-activation pixels fell on the background.
 
 **Table 2.3.** Grad-CAM energy by exclusive ROI (top-50 correct; predicted-class heatmap)
 
 | Group | ROI | Area | Energy share | Concentration (share / area) | Share of pixels with CAM ≥ 0.5 |
 | --- | --- | ---: | ---: | ---: | ---: |
-| 65+ | text | 33.9% | 31.0% | 0.86 | 28.3% |
-| 65+ | person | 20.9% | 25.1% | 1.42 | 31.4% |
-| 65+ | background | 45.1% | 43.9% | 0.90 | 40.3% |
-| ~34 | text | 6.2% | 7.0% | 1.06 | 5.6% |
-| ~34 | person | 19.3% | 20.6% | 1.61 | 19.8% |
-| ~34 | background | 74.5% | 72.4% | 0.98 | 74.5% |
+| 65+ | text | 33.9% | 31.0% | 0.91 | 28.3% |
+| 65+ | person | 20.9% | 25.1% | 1.20 | 31.4% |
+| 65+ | background | 45.1% | 43.9% | 0.97 | 40.3% |
+| ~34 | text | 6.2% | 7.0% | 1.13 | 5.6% |
+| ~34 | person | 19.3% | 20.6% | 1.07 | 19.8% |
+| ~34 | background | 74.5% | 72.4% | 0.97 | 74.5% |
 
-*Note.* Overlapping pixels are assigned to text, then person, then background. Concentration > 1 means more heatmap energy than expected from area alone.
+*Note.* Overlapping pixels are assigned to text, then person, then background. Area, energy share, and the share of high-activation pixels are means over the 50 images; concentration is the ratio of the two group means in the same row, so it can be recomputed from the table. Concentration > 1 means more heatmap energy than expected from area alone.
 
 Deletion and insertion curves for the 65+ top-50 sample were consistent with a usable map (deletion AUC = .494; insertion AUC = .725; Figure A1). After area normalization, person had the highest deletion and insertion importance: text shapes the overall impression through its large area, while person holds discriminative information in a smaller region. The same tests on ~34 cases show no single region to be necessary, which again points to evidence distributed across the frame (Table A1).
 

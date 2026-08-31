@@ -832,6 +832,43 @@ def stage_roi(model, processor, cam, correct_65, correct_34, device):
 # ── CAM energy per ROI (heatmap × text/person/background) ─────────────────────
 CAMSHARE_SUMMARY = STAGE_DIR / "cam_roi_share_summary.csv"
 HOT_THR = 0.5
+CAMSHARE_REGIONS = ["text", "person", "background"]
+CAMSHARE_METRICS = ["area", "share", "concentration", "hot_share", "mean_act"]
+
+
+def build_cam_share_summary(per_image: pd.DataFrame) -> list[dict]:
+    """집단 × ROI 요약.
+
+    concentration_mean은 이미지별 share/area의 평균이며, ROI가 없는 이미지는
+    NaN이라 제외된다. 따라서 area_mean, share_mean과 표본이 달라 표에서
+    share_mean / area_mean으로 역산되지 않는다. 표에 싣는 값은 같은 50장에서
+    계산되어 역산이 가능한 concentration_ratio(= share_mean / area_mean)이다.
+    """
+    rows = []
+    for group, gdf in per_image.groupby("group", sort=False):
+        for region in CAMSHARE_REGIONS:
+            rec = {"group": group, "region": region, "n": len(gdf)}
+            for metric in CAMSHARE_METRICS:
+                col = f"{metric}_{region}"
+                rec[f"{metric}_mean"] = float(gdf[col].mean())
+                rec[f"{metric}_std"] = float(gdf[col].std(ddof=1)) if len(gdf) > 1 else 0.0
+            area_mean = rec["area_mean"]
+            rec["concentration_ratio"] = (
+                rec["share_mean"] / area_mean if area_mean > 0 else float("nan")
+            )
+            rows.append(rec)
+    return rows
+
+
+def rebuild_cam_share_summary():
+    """CAM 재계산 없이 기존 per-image CSV에서 요약만 다시 만든다."""
+    per_path = OUT_DIR / "cam_roi_share_per_image.csv"
+    summary = pd.DataFrame(build_cam_share_summary(pd.read_csv(per_path)))
+    summary.to_csv(OUT_DIR / "cam_roi_share_summary.csv", index=False, encoding="utf-8-sig")
+    summary.to_csv(CAMSHARE_SUMMARY, index=False, encoding="utf-8-sig")
+    cols = ["group", "region", "n", "area_mean", "share_mean", "concentration_ratio",
+            "concentration_mean", "hot_share_mean"]
+    print(summary[cols].to_string(index=False))
 
 
 def exclusive_roi_masks(masks: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
@@ -1008,17 +1045,7 @@ def stage_camshare(model, processor, cam, correct_65, correct_34, device):
     per_image.to_csv(per_path, index=False, encoding="utf-8-sig")
     print("Saved:", per_path)
 
-    regions = ["text", "person", "background"]
-    metrics = ["area", "share", "concentration", "hot_share", "mean_act"]
-    summary_rows = []
-    for group, gdf in per_image.groupby("group", sort=False):
-        for region in regions:
-            rec = {"group": group, "region": region, "n": len(gdf)}
-            for metric in metrics:
-                col = f"{metric}_{region}"
-                rec[f"{metric}_mean"] = float(gdf[col].mean())
-                rec[f"{metric}_std"] = float(gdf[col].std(ddof=1)) if len(gdf) > 1 else 0.0
-            summary_rows.append(rec)
+    summary_rows = build_cam_share_summary(per_image)
     summary = pd.DataFrame(summary_rows)
     out_summary = OUT_DIR / "cam_roi_share_summary.csv"
     summary.to_csv(out_summary, index=False, encoding="utf-8-sig")
@@ -1027,12 +1054,16 @@ def stage_camshare(model, processor, cam, correct_65, correct_34, device):
     print("Saved:", CAMSHARE_SUMMARY)
 
     print("\nCAM share (predicted-class heatmap, exclusive ROI)")
-    print(f"{'group':<8} {'region':<12} {'area%':>8} {'share%':>8} {'conc':>7} {'hot%':>8}")
+    print(
+        f"{'group':<8} {'region':<12} {'area%':>8} {'share%':>8} "
+        f"{'conc':>7} {'conc_img':>9} {'hot%':>8}"
+    )
     for rec in summary_rows:
         print(
             f"{rec['group']:<8} {rec['region']:<12} "
             f"{rec['area_mean']*100:7.1f}% {rec['share_mean']*100:7.1f}% "
-            f"{rec['concentration_mean']:7.2f} {rec['hot_share_mean']*100:7.1f}%"
+            f"{rec['concentration_ratio']:7.2f} {rec['concentration_mean']:9.2f} "
+            f"{rec['hot_share_mean']*100:7.1f}%"
         )
 
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
@@ -1069,12 +1100,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--stage",
-        choices=["train", "eval", "gradcam", "roi", "camshare", "all"],
+        choices=["train", "eval", "gradcam", "roi", "camshare", "camsummary", "all"],
         default="all",
     )
     args = parser.parse_args()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     os.chdir(OUT_DIR)
+
+    if args.stage == "camsummary":
+        rebuild_cam_share_summary()
+        return
 
     if not SAMPLE_CSV.exists():
         print("Preparing merged sample...")
