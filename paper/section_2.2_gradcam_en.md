@@ -22,11 +22,11 @@ A thumbnail-only classifier is trained to distinguish content associated with pe
 
 **Grad-CAM and ROIs.** Grad-CAM was applied to the last Transformer block. CLS and register tokens were dropped and the remaining patch tokens were reshaped into a spatial map. Heatmaps were computed for the predicted class (for correctly classified images this is also the true label). For qualitative inspection we ranked correctly classified ~34 and 65+ test images by prediction confidence, kept one image per channel, and retained the top 50 in each group. These are high-confidence cases, not a random sample, and they are not treated as typical of the full group. Incorrect predictions were not interpreted.
 
-Text, person, and background regions were obtained with EasyOCR (Korean and English; confidence ≥ 0.3) and YOLOv8 person boxes (confidence ≥ 0.3). These ROIs are the same familiar regions that later visual measures will use. They are applied here only to summarize where heatmap energy falls, not to introduce a new feature set. For heatmap-energy counts, overlapping pixels were assigned in the order text, then person, then background, so shares sum to 1. Deletion and insertion tests of explanation faithfulness, and area-normalized ROI deletion/insertion scores, are reported in Appendix A.
+Text, person, and background regions were obtained with EasyOCR (Korean and English; confidence ≥ 0.3) and YOLOv8 person boxes (confidence ≥ 0.3). These ROIs are the same familiar regions that later visual measures will use. They are applied here only to summarize where heatmap energy falls, not to introduce a new feature set. For heatmap-energy counts, overlapping pixels were assigned in the order text, then person, then background, so shares sum to 1. Deletion and insertion tests of explanation faithfulness are reported in Appendix A (Figure A1). Area-normalized ROI deletion/insertion scores for the 65+ top-50 sample are in Table A1.
 
 ### Classification and localization results
 
-Test-set accuracy was .784 and balanced accuracy was .783 (Table 2.2). Under this split, the thumbnail is predictive of the age-associated channel label. That result does not isolate visual style from channel identity, given the overlap reported above. Accuracy was .822 for EDU, .721 for HEALTH, .867 for LIFESTYLE, and .749 for SOCIETY. Recall was higher for ~34 (.842) than for 65+ (.725), so more 65+ images were labeled ~34 (257) than the reverse (150). The maps below are therefore read as a guide to measurement, not as proof that a particular visual style generalizes beyond these channels.
+Test-set accuracy was .784 and balanced accuracy was .783 (Table 2.2). Under this split, the thumbnail is predictive of the age-associated channel label. That result does not isolate visual style from channel identity, given the overlap reported above. Accuracy was .822 for EDU, .721 for HEALTH, .867 for LIFESTYLE, and .749 for SOCIETY. Recall was higher for ~34 (.842) than for 65+ (.725), so more 65+ images were labeled ~34 (257) than the reverse (150). Heatmaps in Figure 1 are therefore read as a guide to measurement, not as proof that a particular visual style generalizes beyond these channels.
 
 **Table 2.2.** Test-set prediction of the age-associated label
 
@@ -35,7 +35,7 @@ Test-set accuracy was .784 and balanced accuracy was .783 (Table 2.2). Under thi
 | ~34 | .757 | .842 | .797 |
 | 65+ | .818 | .725 | .769 |
 
-In the top-50 correct 65+ cases, activation tended to lie on large overlay text and on people, including faces and upper bodies. In the top-50 correct ~34 cases, activation was more widely spread across background, people, text, and objects (Figure 1). Figure 1 shows four exemplars, one from each of EDU, HEALTH, LIFESTYLE, and SOCIETY, drawn from the channel-deduplicated high-confidence top 50. Each panel is the predicted-class map (for these correct cases, also the true label). We do not show the opposite-class map on the same row. These cases are not treated as typical of the full group. The full 50-image grids are in Appendix A (Figures A2 and A3) and are not repeated here.
+In the top-50 correct 65+ cases, activation tended to lie on large overlay text and on people, including faces and upper bodies. In the top-50 correct ~34 cases, activation was more widely spread across background, people, text, and objects (Figure 1). Figure 1 shows four exemplars, one from each of EDU, HEALTH, LIFESTYLE, and SOCIETY, drawn from the channel-deduplicated high-confidence top 50. Each panel is the predicted-class map. For these correct cases that map is also the true label; the opposite-class map is not shown. These cases are not treated as typical of the full group. The full 50-image grids are in Appendix A (Figures A2 and A3) and are not repeated here.
 
 **[Insert Figure 1 here]**  
 **Figure 1.** Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one image per category; order EDU, HEALTH, LIFESTYLE, SOCIETY). Columns: original, predicted-class overlay, predicted-class heatmap.
@@ -44,7 +44,7 @@ In the top-50 correct 65+ cases, activation tended to lie on large overlay text 
 
 (b) ~34: activation spread more widely across the scene.
 
-Table 2.3 reports where predicted-class heatmap energy fell on the same top-50 images. The ROI bar charts are omitted; the same quantities are given as a table. Figures are descriptive; we do not test ~34 versus 65+ differences on these n = 50 sets. In 65+ cases, text and person together held 56.1% of heatmap energy (text 31.0%, person 25.1%). Text occupied 33.9% of the frame, so it is a large part of the layout rather than a small hot spot (concentration = 0.86). Person occupied 20.9% of the frame but 31.4% of pixels with CAM ≥ 0.5 (concentration = 1.42). In ~34 cases, 72.4% of heatmap energy and 74.5% of high-activation pixels fell on the background. Person concentration for ~34 is also above 1 (1.61) but varies widely across images, so we do not treat it as a stable group pattern.
+Table 2.3 reports where predicted-class heatmap energy fell on the same top-50 images. The values are descriptive; we do not test ~34 versus 65+ differences on these n = 50 sets. In 65+ cases, text and person together held 56.1% of heatmap energy (text 31.0%, person 25.1%). Text occupied 33.9% of the frame, so it is a large part of the layout rather than a small hot spot (concentration = 0.86). Person occupied 20.9% of the frame but 31.4% of pixels with CAM ≥ 0.5 (concentration = 1.42). In ~34 cases, 72.4% of heatmap energy and 74.5% of high-activation pixels fell on the background. Person concentration for ~34 is also above 1 (1.61) but varies widely across images, so we do not treat it as a stable group pattern.
 
 **Table 2.3.** Grad-CAM energy by exclusive ROI (top-50 correct; predicted-class heatmap)
 
@@ -59,7 +59,7 @@ Table 2.3 reports where predicted-class heatmap energy fell on the same top-50 i
 
 *Note.* Overlapping pixels are assigned to text, then person, then background. Concentration > 1 means more heatmap energy than expected from area alone.
 
-Deletion and insertion curves for the 65+ top-50 sample were consistent with a usable map (deletion AUC = .494; insertion AUC = .725). The curves themselves are in Appendix A (Figure A1). After area normalization, person had the highest deletion and insertion importance (Table A1). For ~34, predicted probability stayed high after important regions were removed (deletion AUC = .871; insertion AUC = .900; Figure A1). That may reflect evidence spread across the image, or saturated probabilities. We therefore omit ~34 ROI deletion/insertion scores from the main text and do not interpret them. Incorrect high-confidence grids were generated in the same pipeline and are omitted.
+Deletion and insertion curves for the 65+ top-50 sample were consistent with a usable map (deletion AUC = .494; insertion AUC = .725). The curves themselves are in Appendix A (Figure A1). After area normalization, person had the highest deletion and insertion importance (Table A1). For ~34, predicted probability stayed high after important regions were removed (deletion AUC = .871; insertion AUC = .900; Figure A1). That may reflect evidence spread across the image, or saturated probabilities. We therefore omit ~34 ROI deletion/insertion scores from the main text and do not interpret them. Incorrect high-confidence grids are omitted.
 
 ### Where later visual measures are focused
 
@@ -69,7 +69,7 @@ The maps do not add new feature types. They assign emphasis among cues that late
 
 ## Appendix A. Grad-CAM faithfulness and full grids
 
-Deletion removes pixels in order of Grad-CAM importance and records the drop in predicted probability for the target class. Insertion starts from a blurred image and restores the same pixels in the same order. For the 65+ top-50 correct sample, deletion AUC was .494 and insertion AUC was .725. For the ~34 top-50 correct sample, deletion AUC was .871 and insertion AUC was .900. The ~34 curves stay high after deletion, so we report the AUCs here and do not interpret per-ROI deletion/insertion for ~34. The ROI bar charts are omitted; 65+ area-normalized scores are given in Table A1.
+Deletion removes pixels in order of Grad-CAM importance and records the drop in predicted probability for the target class. Insertion starts from a blurred image and restores the same pixels in the same order. For the 65+ top-50 correct sample, deletion AUC was .494 and insertion AUC was .725. For the ~34 top-50 correct sample, deletion AUC was .871 and insertion AUC was .900. The ~34 curves stay high after deletion, so we report the AUCs here and do not interpret per-ROI deletion/insertion for ~34. 65+ area-normalized scores are given in Table A1.
 
 **[Insert Figure A1 here]**  
 **Figure A1.** Deletion and insertion curves for the top-50 correct samples (left: 65+; right: ~34).
