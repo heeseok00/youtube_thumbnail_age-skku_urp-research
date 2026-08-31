@@ -6,9 +6,9 @@ A thumbnail-only classifier is trained to distinguish content associated with pe
 
 ### Data, model, and explanation procedure
 
-**Data and split.** Grad-CAM used the same 9,586 thumbnails as the captioning analysis, from EDU, HEALTH, LIFESTYLE (meditation), and SOCIETY (Table 2.1). Each category is balanced 50:50 on the age-associated label. Age labels are assigned at the channel level, as described in the data collection section; the model predicts that channel-level label from the thumbnail, not the age of a depicted person or of an individual viewer. The data were split 8:2 at the video level, stratified on the age label only (random seed = 42). Category was not stratified, so test-set category counts differ. Because the split is by video, the same channel can appear in both sets, and most test videos come from channels that also appear in training. Classification accuracy is therefore not interpreted as a generalization estimate. It is used only to check that the thumbnail carries information about the age-associated label, so that the maps are worth reading as a guide to where later features should be measured.
+**Data and split.** The classifier used 9,586 thumbnails from EDU, HEALTH, LIFESTYLE (meditation), and SOCIETY (Table 2.1). Each category is balanced 50:50 on the age-associated label. Age labels are assigned at the channel level, as described in the data collection section; the model predicts that channel-level label from the thumbnail, not the age of a depicted person or of an individual viewer. The data were split 8:2 at the video level, stratified on the age label only (random seed = 42). Category was not stratified, so test-set category counts differ. Because the split is by video, the same channel can appear in both sets, and most test videos come from channels that also appear in training. Classification accuracy is therefore not interpreted as a generalization estimate. It is used only to check that the thumbnail carries information about the age-associated label, so that the maps are worth reading as a guide to where later features should be measured.
 
-**Table 2.1.** Thumbnails used for captioning and Grad-CAM, by age
+**Table 2.1.** Thumbnails used in the Grad-CAM classifier, by age
 
 | Category | n | ~34 | ~34 % | 65+ | 65+ % |
 | --- | ---: | ---: | ---: | ---: | ---: |
