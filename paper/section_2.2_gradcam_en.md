@@ -35,10 +35,10 @@ Test-set accuracy was .784 and balanced accuracy was .783 (Table 2.2). The thumb
 | ~34 | .757 | .842 | .797 |
 | 65+ | .818 | .725 | .769 |
 
-In the top-50 correct 65+ cases, activation tended to lie on large text and on people, including faces and upper bodies. In the top-50 correct ~34 cases, activation was more widely spread across background, people, text, and objects. Figure 1 illustrates this pattern with one exemplar from each of EDU, HEALTH, LIFESTYLE, and SOCIETY, drawn from the channel-deduplicated high-confidence top 50. Further exemplars, three per category, are in Appendix A (Figures A2 and A3).
+In the top-50 correct 65+ cases, activation tended to lie on large text and on people, including faces and upper bodies. In the top-50 correct ~34 cases, activation was more widely spread across background, people, text, and objects. Figure 1 illustrates this pattern with one exemplar from each of EDU, HEALTH, LIFESTYLE, and SOCIETY, drawn from the channel-deduplicated top-50 samples. Exemplars are the clearest instance of each group's pattern rather than the most confident prediction: for 65+, the image with the largest combined text and person share of heatmap energy; for ~34, the image with the most dispersed heatmap, measured as the image fraction needed to accumulate half of the heatmap energy. Further exemplars, three per category, are in Appendix A (Figures A2 and A3).
 
 **[Insert Figure 1 here]**  
-**Figure 1.** Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one image per category; order EDU, HEALTH, LIFESTYLE, SOCIETY). Columns: original, predicted-class overlay, predicted-class heatmap.
+**Figure 1.** Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one image per category; rows EDU, HEALTH, LIFESTYLE, SOCIETY). Columns: original, predicted-class overlay, predicted-class heatmap.
 
 (a) 65+: activation on text and people.
 
@@ -91,7 +91,7 @@ Table A1 repeats the deletion and insertion tests one ROI at a time, using the o
 
 The two groups behave differently. In 65+ cases, masking a single ROI lowers the predicted probability and showing a single ROI recovers only about half of it, so person and text each carry part of the evidence, with person the densest per unit area. In ~34 cases, deletion of any single ROI leaves the probability near baseline and insertion of any single ROI already returns a probability above .98, so no single region is necessary and each is close to sufficient on its own. This is the pattern expected when the evidence is redundant across the frame, and it is why the ~34 area-normalized values, especially insN = 15.95 for the small text region, should not be read as a ranking of ROI importance.
 
-Figures A2 and A3 extend the exemplars in Figure 1 to three images per category, drawn from the same channel-deduplicated top-50 samples. They are selected to show each group's modal pattern rather than by confidence alone: for 65+, the images with the largest combined text and person share of heatmap energy; for ~34, the images with the most dispersed heatmaps, measured as the image fraction needed to accumulate half of the heatmap energy. Each pair shows the original thumbnail and the Grad-CAM overlay for the predicted class. The complete 50-image grids are available in the project repository.
+Figures A2 and A3 extend the exemplars in Figure 1 to three images per category, ranked by the same criterion within the same channel-deduplicated top-50 samples. Each pair shows the original thumbnail and the Grad-CAM overlay for the predicted class. The complete 50-image grids are available in the project repository.
 
 **[Insert Figure A2 here]**  
 **Figure A2.** Grad-CAM for correctly classified 65+ thumbnails (three per category; rows EDU, HEALTH, LIFESTYLE, SOCIETY).
