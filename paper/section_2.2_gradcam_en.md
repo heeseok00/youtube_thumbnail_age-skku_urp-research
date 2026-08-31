@@ -6,9 +6,9 @@ A thumbnail-only classifier is trained to distinguish content associated with pe
 
 ### Data, model, and explanation procedure
 
-**Data and split.** The classifier used 9,416 thumbnails from EDU, HEALTH, LIFESTYLE (meditation), and SOCIETY (Tables 2.1a–2.1b). Age labels are assigned at the channel level, as described in the data collection section; the model predicts that channel-level label from the thumbnail, not the age of a depicted person or of an individual viewer. The data were split 8:2 at the video level, stratified on the age label only (7,532 train, 1,884 test; random seed = 42). Category was not stratified, so test-set category counts differ (HEALTH 512, SOCIETY 502, EDU 501, LIFESTYLE (meditation) 369). Because the split is by video, the same channel can appear in both sets. Of 1,347 test channels, 1,036 also appear in training, and 1,536 of 1,884 test videos (81.5%) come from those overlapping channels. Classification accuracy is therefore not interpreted as a generalization estimate. It is used only to check that the thumbnail carries information about the age-associated label, so that the maps are worth reading as a guide to where later features should be measured.
+**Data and split.** Grad-CAM used the same 9,586 thumbnails as the captioning analysis, from EDU, HEALTH, LIFESTYLE (meditation), and SOCIETY (Table 2.1). Each category is balanced 50:50 on the age-associated label. Age labels are assigned at the channel level, as described in the data collection section; the model predicts that channel-level label from the thumbnail, not the age of a depicted person or of an individual viewer. The data were split 8:2 at the video level, stratified on the age label only (random seed = 42). Category was not stratified, so test-set category counts differ. Because the split is by video, the same channel can appear in both sets, and most test videos come from channels that also appear in training. Classification accuracy is therefore not interpreted as a generalization estimate. It is used only to check that the thumbnail carries information about the age-associated label, so that the maps are worth reading as a guide to where later features should be measured.
 
-**Table 2.1a.** Captioning files, by age
+**Table 2.1.** Thumbnails used for captioning and Grad-CAM, by age
 
 | Category | n | ~34 | ~34 % | 65+ | 65+ % |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -17,18 +17,6 @@ A thumbnail-only classifier is trained to distinguish content associated with pe
 | HEALTH | 2,500 | 1,250 | 50.0 | 1,250 | 50.0 |
 | LIFESTYLE (meditation) | 1,990 | 995 | 50.0 | 995 | 50.0 |
 | Total | 9,586 | 4,793 | 50.0 | 4,793 | 50.0 |
-
-**Table 2.1b.** Grad-CAM classifier sample, by age (`video_id` kept once)
-
-| Category | n | ~34 | ~34 % | 65+ | 65+ % |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| SOCIETY | 2,600 | 1,300 | 50.0 | 1,300 | 50.0 |
-| EDU | 2,496 | 1,248 | 50.0 | 1,248 | 50.0 |
-| HEALTH | 2,500 | 1,250 | 50.0 | 1,250 | 50.0 |
-| LIFESTYLE (meditation) | 1,820 | 953 | 52.4 | 867 | 47.6 |
-| Total | 9,416 | 4,751 | 50.5 | 4,665 | 49.5 |
-
-*Note.* Percentages are within each row. The captioning files are balanced 50:50 in every category. Grad-CAM drops 170 meditation `video_id`s that already appear in EDU (130), SOCIETY (27), or HEALTH (13). Those 170 rows are 42 ~34 and 128 65+, so LIFESTYLE (meditation) in Grad-CAM is 953 / 867 (52.4% / 47.6%) and the overall split is 50.5% / 49.5%.
 
 **Model.** Image classification used a frozen DINOv3 ViT-B/16 backbone (Siméoni et al., 2025) and a classification head trained to separate ~34 from 65+ (5 epochs; Adam; learning rate = 0.001; batch size = 16). Thumbnails were resized by the model's image processor to 224 × 224. After training, gradients were enabled on the last Transformer block so that Grad-CAM could be computed.
 
