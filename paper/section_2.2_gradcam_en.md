@@ -22,7 +22,7 @@ A thumbnail-only classifier is trained to distinguish content associated with pe
 
 **Grad-CAM and ROIs.** Grad-CAM was applied to the last Transformer block. CLS and register tokens were dropped and the remaining patch tokens were reshaped into a spatial map. Heatmaps were computed for the predicted class. For qualitative inspection we ranked correctly classified ~34 and 65+ test images by prediction confidence, kept one image per channel, and used the top 50 in each group.
 
-To count where heatmap energy falls, text, person, and background regions were obtained with EasyOCR (Korean and English; confidence ≥ 0.3) and YOLOv8 person boxes (confidence ≥ 0.3). Overlapping pixels were assigned in the order text, then person, then background, so shares sum to 1. Deletion and insertion tests of explanation faithfulness are reported in Appendix A (Figure A1), and area-normalized ROI scores for the 65+ top-50 sample are in Table A1.
+To count where heatmap energy falls, text, person, and background regions were obtained with EasyOCR (Korean and English; confidence ≥ 0.3) and YOLOv8 person boxes (confidence ≥ 0.3). Overlapping pixels were assigned in the order text, then person, then background, so shares sum to 1. Deletion and insertion tests of explanation faithfulness are reported in Appendix A (Figure A1), and area-normalized ROI scores for both top-50 samples are in Table A1.
 
 ### Classification and localization results
 
