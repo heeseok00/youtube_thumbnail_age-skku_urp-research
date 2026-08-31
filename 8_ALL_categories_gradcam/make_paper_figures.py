@@ -117,8 +117,9 @@ def render_main(model, processor, cam, df, group, save_path):
             axes[r, 1].set_title("Grad-CAM overlay", **LABEL_KW)
             axes[r, 2].set_title("heatmap", **LABEL_KW)
 
-    fig.tight_layout(rect=(0, 0, 0.93, 1))
-    cbar = fig.colorbar(im, ax=axes[:, 2], fraction=0.05, pad=0.03)
+    # 컬러바를 별도 축에 그린다. ax=axes[:, 2]로 붙이면 히트맵 열만 좁아진다.
+    fig.tight_layout(rect=(0, 0, 0.9, 1))
+    cbar = fig.colorbar(im, cax=fig.add_axes((0.92, 0.3, 0.018, 0.4)))
     cbar.ax.tick_params(labelsize=11)
     fig.savefig(save_path, dpi=200, bbox_inches="tight")
     plt.close(fig)
