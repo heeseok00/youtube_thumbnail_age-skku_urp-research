@@ -1,60 +1,76 @@
 ## 2.2 Bottom-up Exploratory Analysis via Grad-CAM
 
-### Research Objective
+If later analyses began with a fixed list of features such as text, people, and color, their scope would be limited to those features, and other visual cues used to predict the age-associated label could be missed. We therefore first trained a thumbnail-only classifier to distinguish content associated with people aged 34 and under (~34) from content associated with people aged 65 and over (65+), and used Grad-CAM (Selvaraju et al., 2017) to inspect which regions the model treated as evidence. Grad-CAM is an exploratory step. It marks candidate regions for later tests; it is not treated as a conclusion about age-related style.
 
-The central question of this study is how the multimodal style of YouTube thumbnails and titles differs by age group. If the analysis begins with a predefined set of features such as text, people, and color, its scope is limited to those features, and other visual cues used for age classification may be missed. Before the main feature analysis, we therefore trained a model to distinguish the 34-and-under (~34) and 65-and-over (65~) groups from the thumbnail alone, and used Grad-CAM to inspect which image regions the model treated as evidence for age classification.
+### Setup
 
-Grad-CAM is an explanation method that shows, as a heatmap, which parts of an image the model used as its main evidence when predicting a given class. The regions identified here were not taken as a conclusion about age-related style. They were used to set candidate features for later tests. If a person region is highlighted, for example, person count, facial expression, and head direction can be taken up next. If a text region is highlighted, text area and text–background contrast can be measured. If activation spreads across the scene, the meaning of people, actions, and setting can be examined.
+**Data and split.** The classifier used 9,416 thumbnails from EDU, HEALTH, LIFESTYLE (meditation), and SOCIETY (Table 2.1). Age labels are assigned at the channel level, as described in the data collection section; the model predicts that channel-level label from the thumbnail, not the age of a depicted person or of an individual viewer. The data were split 8:2 at the video level, stratified on the age label only (7,532 train, 1,884 test; random seed = 42). Category was not stratified, so test-set category counts differ (HEALTH 512, SOCIETY 502, EDU 501, LIFESTYLE (meditation) 369). Because the split is by video, the same channel can appear in both sets. Of 1,347 test channels, 1,036 also appear in training, and 1,536 of 1,884 test videos (81.5%) come from those overlapping channels. Classification accuracy is therefore not interpreted as a generalization estimate. It is used only to justify the later search for features.
 
-### Data and Model Configuration
+**Table 2.1.** Thumbnails used in the Grad-CAM classifier
 
-The classifier used 9,416 thumbnails collected from four categories: EDU, HEALTH, LIFESTYLE (meditation), and SOCIETY (~34: 4,751; 65~: 4,665). The data were split 8:2 so that the two age groups kept similar proportions in the training and test sets (7,532 training images, 1,884 test images; random seed = 42). The category-level sample is reported in the data collection section. Image classification used the pretrained vision model DINOv3 (`facebook/dinov3-vitb16-pretrain-lvd1689m`). A pretrained vision model learns general visual structure, including shape, texture, objects, and spatial layout, from large image collections. To use these representations, the DINOv3 backbone was frozen and a classification head was added to separate ~34 from 65~. The head was trained for 5 epochs (Adam, learning rate = 0.001, batch size = 16).
+| Category | ~34 | 65+ | Total |
+| --- | ---: | ---: | ---: |
+| SOCIETY | 1,300 | 1,300 | 2,600 |
+| HEALTH | 1,250 | 1,250 | 2,500 |
+| EDU | 1,248 | 1,248 | 2,496 |
+| LIFESTYLE (meditation) | 953 | 867 | 1,820 |
+| Total | 4,751 | 4,665 | 9,416 |
 
-### Explainability Evaluation
+**Model.** Image classification used a frozen DINOv3 ViT-B/16 backbone (Siméoni et al., 2025) and a classification head trained to separate ~34 from 65+ (5 epochs; Adam; learning rate = 0.001; batch size = 16). Thumbnails were resized by the model's image processor to 224 × 224. After training, gradients were enabled on the last Transformer block so that Grad-CAM could be computed.
 
-Grad-CAM was applied to the last Transformer block of DINOv3. For qualitative analysis, the test set was divided into three groups: correctly classified ~34, correctly classified 65~, and incorrect predictions. Cases in each group were ranked by prediction confidence. To reduce repeated inclusion of one channel's visual style, duplicate channels were removed, and the top 50 cases were retained in each group. The faithfulness of the Grad-CAM explanations was evaluated with deletion and insertion analyses (Appendix). Deletion measures how quickly the predicted probability of the target class falls when pixels are removed in order of Grad-CAM importance. Insertion measures how quickly that probability rises when the same pixels are restored, in the same order, on a blurred image. In addition, EasyOCR and YOLOv8 were used to partition each thumbnail into text, person, and background ROIs. We then compared changes in predicted probability when each ROI was removed, and when only that ROI was retained.
+**Grad-CAM and ROIs.** Grad-CAM was applied to the last Transformer block. CLS and register tokens were dropped and the remaining patch tokens were reshaped into a spatial map. Heatmaps were computed for the predicted class (for correctly classified images this is also the true label). For qualitative inspection we ranked correctly classified ~34 and 65+ test images by prediction confidence, kept one image per channel, and retained the top 50 in each group. These are high-confidence cases, not a random sample, and they are not treated as typical of the full group. Incorrect predictions were not interpreted.
 
-### Age Classification Performance
+Text, person, and background regions were obtained with EasyOCR (Korean and English; confidence ≥ 0.3) and YOLOv8 person boxes (confidence ≥ 0.3). For heatmap-energy counts, overlapping pixels were assigned in the order text, then person, then background, so shares sum to 1. Deletion and insertion tests of explanation faithfulness, and area-normalized ROI deletion/insertion scores, are reported in Appendix A.
 
-**Table 1.** Test-set classification performance
+### Findings
+
+Test-set accuracy was .784 and balanced accuracy was .783 (Table 2.2). Under this split, the thumbnail is predictive of the age-associated channel label. That result does not isolate visual style from channel identity, given the overlap reported above. Accuracy was highest for LIFESTYLE (meditation) (.867) and EDU (.822), and lower for SOCIETY (.749) and HEALTH (.721). Recall was higher for ~34 (.842) than for 65+ (.725), so more 65+ images were labeled ~34 (257) than the reverse (150).
+
+**Table 2.2.** Test-set prediction of the age-associated label
 
 | Group | Precision | Recall | F1 |
 | --- | ---: | ---: | ---: |
 | ~34 | .757 | .842 | .797 |
-| 65~ | .818 | .725 | .769 |
+| 65+ | .818 | .725 | .769 |
 
-Test-set accuracy was .784, and balanced accuracy was .783. The two groups could be separated from the thumbnail image alone, without predefined features. This indicates that visual style signals associated with age are present in the images. Accuracy by category was LIFESTYLE (meditation) .867, EDU .822, SOCIETY .749, and HEALTH .721. Misclassifications from 65~ to ~34 (257) also outnumbered those from ~34 to 65~ (150). In borderline cases, 65~ thumbnails were more often judged as the younger group.
+In the top-50 correct 65+ cases, activation tended to lie on large overlay text and on people, including faces and upper bodies. In the top-50 correct ~34 cases, activation was more widely spread across background, people, text, and objects (Figure 1). The main text shows a small set of exemplars; the full grids are in Appendix A.
 
-### Grad-CAM and ROI Results
+**Figure 1.** Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases.
 
-In correctly classified 65~ cases, activation tended to concentrate around large overlay text and around people, including faces and upper bodies. In correctly classified ~34 cases, activation was more widely distributed across background, people, text, and objects, rather than concentrated in one region (Figure 1). This observation is limited to the channel-deduplicated top 50 cases with high prediction confidence. It is not treated as a general property of each age group.
+(a) 65+: activation on overlay text and people.
 
-**Figure 1.** Grad-CAM on correctly classified cases by age group.
+(b) ~34: activation spread more widely across the scene.
 
-(a) In 65~ correct cases, activation concentrated around overlay text and people.
+Table 2.3 reports where predicted-class heatmap energy fell on the same top-50 images. Figures are descriptive; we do not test ~34 versus 65+ differences on these n = 50 sets. In 65+ cases, text and person together held 56.1% of heatmap energy (text 31.0%, person 25.1%). Text occupied 33.9% of the frame, so it is a large part of the layout rather than a small hot spot (concentration = 0.86). Person occupied 20.9% of the frame but 31.4% of pixels with CAM ≥ 0.5 (concentration = 1.42). In ~34 cases, 72.4% of heatmap energy and 74.5% of high-activation pixels fell on the background. Person concentration for ~34 is also above 1 (1.61) but varies widely across images, so we do not treat it as a stable group pattern.
 
-(b) In ~34 correct cases, activation was more widely distributed across elements of the scene.
-
-To quantify where the heatmap energy fell, each top-50 correct Grad-CAM map was overlapped with exclusive text, person, and background masks (overlapping pixels were assigned in that order). In 65~ cases, text and person together accounted for 56.1% of heatmap energy (text 31.0%, person 25.1%), and 59.7% of pixels with CAM ≥ 0.5. Person occupied 20.9% of the frame but 31.4% of those high-activation pixels (concentration = 1.42). In ~34 cases, 72.4% of heatmap energy and 74.5% of high-activation pixels fell on the background (Table 2).
-
-**Table 2.** Grad-CAM energy by ROI on the top-50 correct cases (predicted-class heatmap; exclusive masks)
+**Table 2.3.** Grad-CAM energy by exclusive ROI (top-50 correct; predicted-class heatmap)
 
 | Group | ROI | Area | Energy share | Concentration (share / area) | Share of pixels with CAM ≥ 0.5 |
 | --- | --- | ---: | ---: | ---: | ---: |
-| 65~ | text | 33.9% | 31.0% | 0.86 | 28.3% |
-| 65~ | person | 20.9% | 25.1% | 1.42 | 31.4% |
-| 65~ | background | 45.1% | 43.9% | 0.90 | 40.3% |
+| 65+ | text | 33.9% | 31.0% | 0.86 | 28.3% |
+| 65+ | person | 20.9% | 25.1% | 1.42 | 31.4% |
+| 65+ | background | 45.1% | 43.9% | 0.90 | 40.3% |
 | ~34 | text | 6.2% | 7.0% | 1.06 | 5.6% |
 | ~34 | person | 19.3% | 20.6% | 1.61 | 19.8% |
 | ~34 | background | 74.5% | 72.4% | 0.98 | 74.5% |
 
-*Note.* Concentration > 1 indicates more heatmap energy than expected from area alone.
+*Note.* Overlapping pixels are assigned to text, then person, then background. Concentration > 1 means more heatmap energy than expected from area alone.
 
-Faithfulness checks for the 65~ correct sample (n = 50) gave a deletion AUC of .494 and an insertion AUC of .725 (Appendix). Predicted probability for 65~ fell as important regions were removed and rose as they were restored, which is consistent with a match between the activation map and the model's evidence. For the ~34 sample, predicted probability remained high after important regions were removed (deletion AUC = .871; insertion AUC = .900). Discriminative information may be spread across many regions, or predicted probabilities may be saturated. ~34 ROI results were therefore excluded from the main interpretation.
+Deletion and insertion curves for the 65+ top-50 sample were consistent with a usable map (deletion AUC = .494; insertion AUC = .725; Appendix A). After area normalization, person had the highest deletion and insertion importance. For ~34, predicted probability stayed high after important regions were removed (deletion AUC = .871). That may reflect evidence spread across the image, or saturated probabilities. We therefore do not interpret ~34 ROI deletion/insertion scores in the main text.
 
-For the 65~ correct sample, text occupied 33.9% of the frame on average, person 25.9%, and background 45.1%. After area normalization, person had the highest deletion and insertion importance (delN = .56, insN = 2.10; Table 3). Text occupied a large share of the frame and contributed to overall style, whereas person occupied a smaller region in which age-classification information was more concentrated.
+### From exploration to later measures
 
-**Table 3.** ROI area and area-normalized deletion/insertion importance (65~ correct, n = 50)
+Person-region activation motivated later measures of person area, person count, facial expression, and head direction. Estimated face age was added as a related person measure; Grad-CAM does not itself estimate age. Overlay-text activation motivated text area and text–background contrast. Activation spread across the scene motivated image captions, which we treat as semantic units (people, actions, objects, expression, and setting). Global color statistics and an AI-generation score are conventional visual measures. They are not derived from Grad-CAM. Title length, form, grammar, and vocabulary are a separate linguistic layer, used to test whether the information-heavy presentation seen in many 65+ thumbnails also appears in language.
+
+---
+
+## Appendix A. Grad-CAM faithfulness and full grids
+
+Deletion removes pixels in order of Grad-CAM importance and records the drop in predicted probability for the target class. Insertion starts from a blurred image and restores the same pixels in the same order. For the 65+ top-50 correct sample, deletion AUC was .494 and insertion AUC was .725. For the ~34 top-50 correct sample, deletion AUC was .871 and insertion AUC was .900.
+
+Table A1 uses the original overlapping OCR and YOLO boxes (text + person + background can exceed 100%). delN = (original probability − deletion probability) / area; insN = insertion probability / area. Person has the highest area-normalized scores. These figures complement Table 2.3 and are not a second area definition for the main argument.
+
+**Table A1.** Overlapping ROI area and area-normalized deletion/insertion (65+ correct, n = 50)
 
 | ROI | Area | Deletion (raw) | Insertion (raw) | delN | insN |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -62,12 +78,6 @@ For the 65~ correct sample, text occupied 33.9% of the frame on average, person 
 | person | 25.9% | .854 | .543 | 0.56 | 2.10 |
 | background | 45.1% | .889 | .566 | 0.24 | 1.26 |
 
-*Note.* Area in this table uses overlapping text and person boxes, as in the original ROI pipeline. delN = (original − deletion) / area; insN = insertion / area. Person area is therefore higher than the exclusive person area in Table 2.
+The full 50-image Grad-CAM grids for correct ~34 and correct 65+ are omitted from the main text. Incorrect high-confidence cases were generated in the same pipeline and are not interpreted.
 
-### Transition to Subsequent Analyses
-
-The regions observed with Grad-CAM were used as the starting point for later candidate features. Activation around people was operationalized as person area, person count, facial expression, head direction, and estimated person age. Activation on overlay text was linked to text placement and readability features, including text area and text–background contrast.
-
-Scene-level activation that a single feature cannot capture was converted, through image captioning, into semantic units such as people, actions, objects, expression, and setting. To test whether the information-centered presentation seen in thumbnails also appears in language, titles were analyzed separately for length, form, grammar, and vocabulary.
-
-Grad-CAM therefore functions as an exploratory step. It derives candidate features from the regions the model actually used, rather than stating a conclusion about age-related style. Because the split was made at the video level, videos from the same channel may appear in both the training and test sets. Classification performance is interpreted as a result that supports later feature search, not as a firm estimate of generalization.
+*Model identifier (for replication):* `facebook/dinov3-vitb16-pretrain-lvd1689m`.
