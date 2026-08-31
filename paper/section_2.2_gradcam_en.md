@@ -6,17 +6,17 @@ A thumbnail-only classifier is trained to distinguish content associated with pe
 
 ### Data, model, and explanation procedure
 
-**Data and split.** The classifier used 9,586 thumbnails from EDU, HEALTH, LIFESTYLE (meditation), and SOCIETY (Table 2.1). Each category is balanced 50:50 on the age-associated label. Age labels are assigned at the channel level, as described in the data collection section; the model predicts that channel-level label from the thumbnail, not the age of a depicted person or of an individual viewer. The data were split 8:2 at the video level, stratified on the age label only (random seed = 42). Category was not stratified, so test-set category counts differ. Because the split is by video, the same channel can appear in both sets, and most test videos come from channels that also appear in training. Classification accuracy is therefore not interpreted as a generalization estimate. It is used only to check that the thumbnail carries information about the age-associated label, so that the maps are worth reading as a guide to where later features should be measured.
+**Data and split.** The classifier used 9,586 thumbnails from EDU, HEALTH, LIFESTYLE, and SOCIETY (Table 2.1). As defined in Section 2.1, the four samples are the Psychology education, Wellness, Meditation, and Current Affairs subcategories. Each category is balanced 50:50 on the age-associated label. Age labels are assigned at the channel level, as described in the data collection section; the model predicts that channel-level label from the thumbnail, not the age of a depicted person or of an individual viewer. The data were split 8:2 at the video level, stratified on the age label only (random seed = 42). Category was not stratified, so test-set category counts differ. Because the split is by video, the same channel can appear in both sets, and most test videos come from channels that also appear in training. Classification accuracy is therefore not interpreted as a generalization estimate. It is used only to check that the thumbnail carries information about the age-associated label, so that the maps are worth reading as a guide to where later features should be measured.
 
 **Table 2.1.** Thumbnails used in the Grad-CAM classifier, by age
 
-| Category | n | ~34 | ~34 % | 65+ | 65+ % |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| SOCIETY | 2,600 | 1,300 | 50.0 | 1,300 | 50.0 |
-| EDU | 2,496 | 1,248 | 50.0 | 1,248 | 50.0 |
-| HEALTH | 2,500 | 1,250 | 50.0 | 1,250 | 50.0 |
-| LIFESTYLE (meditation) | 1,990 | 995 | 50.0 | 995 | 50.0 |
-| Total | 9,586 | 4,793 | 50.0 | 4,793 | 50.0 |
+| Category | Subcategory | n | ~34 | ~34 % | 65+ | 65+ % |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| EDU | Psychology education | 2,496 | 1,248 | 50.0 | 1,248 | 50.0 |
+| HEALTH | Wellness | 2,500 | 1,250 | 50.0 | 1,250 | 50.0 |
+| LIFESTYLE | Meditation | 1,990 | 995 | 50.0 | 995 | 50.0 |
+| SOCIETY | Current Affairs | 2,600 | 1,300 | 50.0 | 1,300 | 50.0 |
+| Total |  | 9,586 | 4,793 | 50.0 | 4,793 | 50.0 |
 
 **Model.** Image classification used a frozen DINOv3 ViT-B/16 backbone (Siméoni et al., 2025) and a classification head trained to separate ~34 from 65+ (5 epochs; Adam; learning rate = 0.001; batch size = 16). Thumbnails were resized by the model's image processor to 224 × 224. After training, gradients were enabled on the last Transformer block so that Grad-CAM could be computed.
 
@@ -26,7 +26,7 @@ Text, person, and background regions were obtained with EasyOCR (Korean and Engl
 
 ### Classification and localization results
 
-Test-set accuracy was .784 and balanced accuracy was .783 (Table 2.2). Under this split, the thumbnail is predictive of the age-associated channel label. That result does not isolate visual style from channel identity, given the overlap reported above. Accuracy was highest for LIFESTYLE (meditation) (.867) and EDU (.822), and lower for SOCIETY (.749) and HEALTH (.721). Recall was higher for ~34 (.842) than for 65+ (.725), so more 65+ images were labeled ~34 (257) than the reverse (150). The maps below are therefore read as a guide to measurement, not as proof that a particular visual style generalizes beyond these channels.
+Test-set accuracy was .784 and balanced accuracy was .783 (Table 2.2). Under this split, the thumbnail is predictive of the age-associated channel label. That result does not isolate visual style from channel identity, given the overlap reported above. Accuracy was .822 for EDU, .721 for HEALTH, .867 for LIFESTYLE, and .749 for SOCIETY. Recall was higher for ~34 (.842) than for 65+ (.725), so more 65+ images were labeled ~34 (257) than the reverse (150). The maps below are therefore read as a guide to measurement, not as proof that a particular visual style generalizes beyond these channels.
 
 **Table 2.2.** Test-set prediction of the age-associated label
 
