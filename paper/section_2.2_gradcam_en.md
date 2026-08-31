@@ -8,13 +8,23 @@ Later visual measures still use ordinary cues such as people, text, and color. G
 
 **Table 2.1.** Thumbnails used in the Grad-CAM classifier
 
-| Category | ~34 | 65+ | Total |
-| --- | ---: | ---: | ---: |
-| SOCIETY | 1,300 | 1,300 | 2,600 |
-| HEALTH | 1,250 | 1,250 | 2,500 |
-| EDU | 1,248 | 1,248 | 2,496 |
-| LIFESTYLE (meditation) | 953 | 867 | 1,820 |
-| Total | 4,751 | 4,665 | 9,416 |
+| Category | n |
+| --- | ---: |
+| SOCIETY | 2,600 |
+| EDU | 2,496 |
+| HEALTH | 2,500 |
+| LIFESTYLE (meditation) | 1,820 |
+| Total | 9,416 |
+
+| Category | ~34 | 65+ |
+| --- | ---: | ---: |
+| SOCIETY | 1,300 | 1,300 |
+| EDU | 1,248 | 1,248 |
+| HEALTH | 1,250 | 1,250 |
+| LIFESTYLE (meditation) | 953 | 867 |
+| Total | 4,751 | 4,665 |
+
+*Note.* The four captioning files sum to 9,586 rows (LIFESTYLE (meditation) = 1,990). Grad-CAM keeps one row per `video_id`. 170 meditation videos already appear in EDU (130), SOCIETY (27), or HEALTH (13), so LIFESTYLE (meditation) is 1,820 and the classifier sample is 9,416.
 
 **Model.** Image classification used a frozen DINOv3 ViT-B/16 backbone (Siméoni et al., 2025) and a classification head trained to separate ~34 from 65+ (5 epochs; Adam; learning rate = 0.001; batch size = 16). Thumbnails were resized by the model's image processor to 224 × 224. After training, gradients were enabled on the last Transformer block so that Grad-CAM could be computed.
 
