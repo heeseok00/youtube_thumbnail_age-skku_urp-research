@@ -2,7 +2,20 @@
 
 Working pick:
 
-Visual and Textual Signals of Audience Age in YouTube Thumbnails and Titles Across Content Categories
+Visual and Textual Signals of Audience Age in Korean YouTube Thumbnails and Titles Across Information Categories
+
+## Why Korean belongs in the title
+
+Earlier drafts left the corpus out of the title. The title analysis makes that
+untenable. Word origin (native Korean, Sino-Korean, loanword) is a Korean
+linguistic category, KLUE-RoBERTa is a Korean model, and the headline lexical
+result (life-circumstance and illness vocabulary for 65-and-over, loanwords for
+34-and-under) only holds in Korean. The language is a condition of the finding,
+not a sampling detail. ICWSM also publishes country- and language-specific
+studies without penalty; two are in the precedent list below.
+
+*Content Categories* becomes *Information Categories* to match the body, which
+frames the four domains as informational rather than entertainment content.
 
 ## Why drop multimodal from the title
 
@@ -26,7 +39,10 @@ Keep multimodal out of the title. In the body it can stay only where the sentenc
 
 | ID | Title | Categories | Age | Visual / textual | Note |
 | --- | --- | --- | --- | --- | --- |
-| A | Visual and Textual Signals of Audience Age in YouTube Thumbnails and Titles Across Content Categories | yes | yes | signals + objects | Working pick |
+| A | Visual and Textual Signals of Audience Age in Korean YouTube Thumbnails and Titles Across Information Categories | yes | yes | signals + objects | Working pick |
+| A2 | Age-Associated Visual and Textual Features of Korean YouTube Thumbnails and Titles Across Information Categories | yes | yes | features + objects | Fallback if the group prefers *features* |
+| A3 | What Recurs Across Categories: Visual and Textual Signals of Audience Age in Korean YouTube Thumbnails and Titles | finding-led | yes | both | Colon form; use once results are locked |
+| A4 | Visual and Textual Signals of Audience Age in Korean YouTube Thumbnails and Titles | implicit | yes | both | Short form; abstract must name the four domains |
 | B | Age-Associated Visual and Textual Features of YouTube Thumbnails and Titles Across Information Categories | yes | yes | features + objects | Closest to the advisor wording |
 | C | How YouTube Thumbnails and Titles Differ by Audience Age Across Information Categories | yes | yes | objects only | Plain; less methods-coded |
 | D | Thumbnails, Titles, and Age: Visual and Textual Features Across YouTube Information Categories | yes | yes | both | Colon form; compact hook |
@@ -66,4 +82,10 @@ Keep multimodal out of the title. In the body it can stay only where the sentenc
 
 ## If A is too long
 
-Do not drop visual and textual, or age. Drop *Across Content Categories* only if the abstract's first sentence names the four domains. Use B if the group prefers *features* to *signals*. Use D if a colon title is wanted for the program.
+Do not drop *Korean*, *Audience Age*, or *Visual and Textual*. Drop *Across
+Information Categories* only if the abstract's first sentence names the four
+domains, which gives A4. Use A2 if the group prefers *features* to *signals*,
+and A3 if a colon title is wanted for the program.
+
+Rows B through H below predate the decision to name the corpus; they are kept
+for the tradeoffs they record, not as live candidates.
