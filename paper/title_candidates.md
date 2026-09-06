@@ -36,6 +36,34 @@ Keep multimodal out of the title. In the body it can stay only where the sentenc
 | H | Cross-Category Visual and Textual Features of Younger and Older YouTube Audiences | yes | yes | features only | Short; easy to misread as a user study |
 | X | Age-Related Multimodal Style in YouTube Thumbnails and Titles Across Content Categories | yes | yes | multimodal | Reject; same word as Kulsum, different claim |
 
+## Precedent titles (how ICWSM uses multimodal)
+
+### Title uses multimodal for fusion
+
+- [Beyond Metadata: Multimodal, Policy-Aware Detection of YouTube Scam Videos](https://ojs.aaai.org/index.php/ICWSM/article/view/42698) (ICWSM, 2026). Kulsum et al. Detect YouTube scams. Multimodal means a fused model (frames + title + description) that beats text-only and visual-only baselines.
+
+### Title avoids multimodal; abstract still says it
+
+- [Catching Dark Signals in Algorithms: Unveiling Audiovisual and Thematic Markers of Unsafe Content Recommended for Children and Teenagers](https://ojs.aaai.org/index.php/ICWSM/article/view/42768) (ICWSM, 2026). Xue et al. Feature-level and theme-level analysis of short videos recommended to children. The abstract says "multimodal feature analysis"; the title names audiovisual and thematic markers.
+
+### Title uses multimodal for the object or the dataset
+
+- [Large-Scale Multimodal Content Analysis and Annotation with Vision-Language Models](https://ojs.aaai.org/index.php/ICWSM/article/view/42718) (ICWSM, 2026). Nemani and Garimella. WhatsApp political content in India (text, image, video) annotated with VLMs. Multimodal is the content and the joint toolkit.
+
+- [Large Scale Narrative Analysis of Multimodal Memes](https://ojs.aaai.org/index.php/ICWSM/article/view/42722) (ICWSM, 2026). Peh et al. Cluster memes and write corpus-level narratives. Multimodal names the object: image-plus-text memes.
+
+- [The First Mass Protest on Threads: Multimodal Mobilization and AI-Generated Visuals in Taiwan’s Bluebird Movement](https://ojs.aaai.org/index.php/ICWSM/article/view/42759) (ICWSM, 2026). Weener and Chang. Protest posts as text plus image. Multimodal means the two channels of mobilization.
+
+- [MemeMatch: A Large-Scale Dual-Context Multimodal Dataset and Retrieval System for Internet Memes](https://ojs.aaai.org/index.php/ICWSM/article/view/42785) (ICWSM, 2026). Le et al. Dataset of image-with-text memes. Multimodal describes the resource.
+
+- [SemioMeme: A Symbolic–Subsymbolic Knowledge Graph Dataset for Multimodal Meme Analysis](https://ojs.aaai.org/index.php/ICWSM/article/view/42792) (ICWSM, 2026). Sherratt et al. Knowledge graph with vision and text embeddings. Multimodal is the analysis target.
+
+- [MASH: A Multiplatform and Multimodal Annotated Dataset for Societal Impact of Hurricane](https://ojs.aaai.org/index.php/ICWSM/article/view/42795) (ICWSM, 2026). Hurricane posts from Reddit, TikTok, and YouTube, labeled on text and image together. Multimodal is the annotation unit.
+
+### Image plus text, no multimodal in the title
+
+- [Disturbed YouTube for Kids: Characterizing and Detecting Inappropriate Videos Targeting Young Children](https://ojs.aaai.org/index.php/ICWSM/article/view/7320) (ICWSM, 2020). Papadamou et al. Titles, thumbnails, tags, and video content, without multimodal in the title.
+
 ## If A is too long
 
 Do not drop visual and textual, or age. Drop *Across Content Categories* only if the abstract's first sentence names the four domains. Use B if the group prefers *features* to *signals*. Use D if a colon title is wanted for the program.
