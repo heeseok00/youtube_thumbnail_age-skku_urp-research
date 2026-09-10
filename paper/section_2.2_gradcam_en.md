@@ -33,9 +33,9 @@ Grad-CAM was applied to the last Transformer block. CLS and register tokens were
 
 Text, person, and background regions were obtained with EasyOCR (Korean and English; confidence ≥ 0.3) and YOLOv8 person boxes (confidence ≥ 0.3). Overlapping pixels were assigned in the order text, then person, then background, so exclusive shares sum to 1. The classifier was trained for 5 epochs with Adam (learning rate = 0.001; batch size = 16). Thumbnails were resized to 224 × 224. The backbone identifier is `facebook/dinov3-vitb16-pretrain-lvd1689m`.
 
-Test-set accuracy was .784 overall, .822 for EDU, .721 for HEALTH, .867 for LIFESTYLE, and .749 for SOCIETY. Recall was higher for 18–34 (.842) than for 65+ (.725), so more 65+ images were labeled 18–34 (257) than the reverse (150). Class-wise scores are in Table A2.
+Test-set accuracy was .784 overall, .822 for EDU, .721 for HEALTH, .867 for LIFESTYLE, and .749 for SOCIETY. Recall was higher for 18–34 (.842) than for 65+ (.725), so more 65+ images were labeled 18–34 (257) than the reverse (150). Class-wise scores are in Table A1.
 
-Table A2. Test-set prediction of the age-associated label.
+Table A1. Test-set prediction of the age-associated label.
 
 | Group | Precision | Recall | F1 |
 | --- | ---: | ---: | ---: |
@@ -43,9 +43,9 @@ Table A2. Test-set prediction of the age-associated label.
 | 65+ | .818 | .725 | .769 |
 
 \paragraph{Exclusive ROI energy.}
-Table A3 reports where predicted-class heatmap energy fell on the same top-50 correct images. In 65+ cases, text and person together held 56.1% of heatmap energy (text 31.0%, person 25.1%). Text occupied 33.9% of the frame, so it is a large part of the layout rather than a small hot spot (concentration = 0.86). Person occupied 20.9% of the frame but 31.4% of pixels with CAM ≥ 0.5 (concentration = 1.42), so discriminative information was more densely packed in that smaller region. In 18–34 cases, 72.4% of heatmap energy and 74.5% of high-activation pixels fell on the background.
+Table A2 reports where predicted-class heatmap energy fell on the same top-50 correct images. In 65+ cases, text and person together held 56.1% of heatmap energy (text 31.0%, person 25.1%). Text occupied 33.9% of the frame, so it is a large part of the layout rather than a small hot spot (concentration = 0.86). Person occupied 20.9% of the frame but 31.4% of pixels with CAM ≥ 0.5 (concentration = 1.42), so discriminative information was more densely packed in that smaller region. In 18–34 cases, 72.4% of heatmap energy and 74.5% of high-activation pixels fell on the background.
 
-Table A3. Grad-CAM energy by exclusive ROI (top-50 correct; predicted-class heatmap). Concentration is energy share divided by area. Overlapping pixels are assigned to text, then person, then background.
+Table A2. Grad-CAM energy by exclusive ROI (top-50 correct; predicted-class heatmap). Concentration is energy share divided by area. Overlapping pixels are assigned to text, then person, then background.
 
 | Group | ROI | Area | Energy | Conc. | CAM ≥ .5 |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -63,9 +63,9 @@ Deletion removes pixels in order of Grad-CAM importance and records the drop in 
 
 Figure A1. Deletion and insertion curves for the top-50 correct samples (left: 65+; right: 18–34).
 
-Table A1 repeats the deletion and insertion tests one ROI at a time, using the original overlapping OCR and YOLO boxes (text + person + background can exceed 100%). Deletion masks the ROI and insertion shows only the ROI. delN = (baseline probability − deletion probability) / area; insN = insertion probability / area.
+Table A3 repeats the deletion and insertion tests one ROI at a time, using the original overlapping OCR and YOLO boxes (text + person + background can exceed 100%). Deletion masks the ROI and insertion shows only the ROI. delN = (baseline probability - deletion probability) / area; insN = insertion probability / area.
 
-Table A1. Overlapping ROI area and area-normalized deletion/insertion (top-50 correct, n = 50 per group). Baseline probability was .999 for 65+ and 1.000 for 18–34.
+Table A3. Overlapping ROI area and area-normalized deletion/insertion (top-50 correct, n = 50 per group). Baseline probability was .999 for 65+ and 1.000 for 18–34.
 
 | Group | ROI | Area | Deletion (raw) | Insertion (raw) | delN | insN |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
