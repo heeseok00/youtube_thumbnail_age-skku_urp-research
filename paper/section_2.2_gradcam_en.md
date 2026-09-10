@@ -8,9 +8,19 @@ Image classification used a frozen DINOv3 ViT-B/16 backbone (Siméoni et al. 202
 
 In correctly classified high-confidence cases, 65+ activation concentrated on large text and on people, including faces and upper bodies, whereas 18–34 activation spread more widely across background, people, text, and objects (Figure 1). On the same top-50 samples, text and person together held 56.1% of 65+ heatmap energy, while 72.4% of 18–34 heatmap energy fell on the background (Table A3). Deletion and insertion tests of explanation faithfulness are shown in Figure A1 and Table A1. Additional exemplars, three per category, are in Figures A2 and A3.
 
-[Figure 1 here]
+In Overleaf two-column mode, do not use `center` + `\captionof`. That is not a float, so the two grids split from the caption and wrap into the next column. Use `figure*` (full width, top of page) with `\caption` inside the environment:
 
-Figure 1. Grad-CAM overlays for correctly classified, channel-deduplicated top-50 cases (one image per category). Top: 65+, activation on text and people. Bottom: 18–34, activation spread more widely across the scene. Columns: EDU, HEALTH, LIFESTYLE, SOCIETY.
+```latex
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth,height=0.26\textheight,keepaspectratio]{fig1_older_gradcam.png}\\[0.35em]
+\includegraphics[width=\textwidth,height=0.26\textheight,keepaspectratio]{fig1_younger_gradcam.png}
+\caption{Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Top: 65+, activation on text and people. Bottom: 18--34, activation spread more widely across the scene. Columns: original, predicted-class overlay, predicted-class heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.}
+\label{fig:gradcam}
+\end{figure*}
+```
+
+Figure 1. Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Top: 65+, activation on text and people. Bottom: 18–34, activation spread more widely across the scene. Columns: original, predicted-class overlay, predicted-class heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.
 
 Later analyses follow these localizations. Where activation concentrates on thumbnail text, we measure text area and text–background contrast. Where it concentrates on people, we measure person area and estimated face age. Where it spreads across the scene, we compare captions describing people, actions, objects, and setting.
 
