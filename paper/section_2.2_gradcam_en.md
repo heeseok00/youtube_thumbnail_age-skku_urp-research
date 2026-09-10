@@ -4,23 +4,24 @@
 
 Thumbnails associated with the two age groups can be compared on familiar visual cues, including people, text, and color. A thumbnail, however, layers people, text, and background in a single frame, so the same feature yields different values depending on which region it is read from. We therefore first train a thumbnail-only classifier to separate the two age groups, then use Grad-CAM (Selvaraju et al. 2017) to locate the regions the model relies on. Those regions set the focus for the visual feature measurements in Section 2.3.
 
-Image classification used a frozen DINOv3 ViT-B/16 backbone (Siméoni et al. 2025) and a classification head trained to separate 18–34 from 65+ on the 9,586 thumbnails in Table 1. Age labels were assigned at the channel level, and the model predicted that label from the thumbnail alone. We used an 8:2 video-level split stratified by age label. Test-set accuracy was 78.4% (balanced accuracy .783), so the thumbnail carries a discriminative signal associated with audience age, which is what makes the heatmaps worth reading. Token handling, the top-50 sampling rule, OCR and YOLO thresholds, the ROI overlap rule, and training hyperparameters are reported in Appendix A. Per-category accuracy and class-wise precision, recall, and F1 are in Table A2.
+Image classification used a frozen DINOv3 ViT-B/16 backbone (Siméoni et al. 2025) and a classification head trained to separate 18–34 from 65+ on the 9,586 thumbnails in Table 1. Age labels were assigned at the channel level, and the model predicted that label from the thumbnail alone. We used an 8:2 video-level split stratified by age label. Test-set accuracy was 78.4% (balanced accuracy .783), so the thumbnail carries a discriminative signal associated with audience age, which is what makes the heatmaps worth reading. Token handling, the top-50 sampling rule, OCR and YOLO thresholds, the ROI overlap rule, and training hyperparameters are reported in Appendix A. Per-category accuracy and class-wise precision, recall, and F1 are in Table A1.
 
-In correctly classified high-confidence cases, 65+ activation concentrated on large text and on people, including faces and upper bodies, whereas 18–34 activation spread more widely across background, people, text, and objects (Figure 1). On the same top-50 samples, text and person together held 56.1% of 65+ heatmap energy, while 72.4% of 18–34 heatmap energy fell on the background (Table A3). Deletion and insertion tests of explanation faithfulness are shown in Figure A1 and Table A1. Additional exemplars, three per category, are in Figures A2 and A3.
+In correctly classified high-confidence cases, 65+ activation concentrated on large text and on people, including faces and upper bodies, whereas 18–34 activation spread more widely across background, people, text, and objects (Figure 1). On the same top-50 samples, text and person together held 56.1% of 65+ heatmap energy, while 72.4% of 18–34 heatmap energy fell on the background (Table A2). Deletion and insertion tests of explanation faithfulness are shown in Figure A1 and Table A3. Additional exemplars, three per category, are in Figures A2 and A3.
 
-In Overleaf two-column mode, do not use `center` + `\captionof`. That is not a float, so the two grids split from the caption and wrap into the next column. Use `figure*` (full width, top of page) with `\caption` inside the environment:
+Do not keep a `figure*` in 2.1. That float jumps to the top of a later page and duplicates Figure 1. After the three 2.2 paragraphs, use one spanning `\twocolumn[{...}]` block, side by side, **no height**. These PNGs are tall: a height cap shrinks the width and leaves a tiny centered pair.
 
 ```latex
-\begin{figure*}[t]
+\twocolumn[{%
 \centering
-\includegraphics[width=\textwidth,height=0.26\textheight,keepaspectratio]{fig1_older_gradcam.png}\\[0.35em]
-\includegraphics[width=\textwidth,height=0.26\textheight,keepaspectratio]{fig1_younger_gradcam.png}
-\caption{Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Top: 65+, activation on text and people. Bottom: 18--34, activation spread more widely across the scene. Columns: original, predicted-class overlay, predicted-class heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.}
+\includegraphics[width=0.48\textwidth]{fig1_older_gradcam.png}\hfill
+\includegraphics[width=0.48\textwidth]{fig1_younger_gradcam.png}
+\captionof{figure}{Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Left: 65+, activation on text and people. Right: 18--34, activation spread more widely across the scene. Columns: original, predicted-class overlay, predicted-class heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.}
 \label{fig:gradcam}
-\end{figure*}
+\vspace{0.8ex}
+}]
 ```
 
-Figure 1. Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Top: 65+, activation on text and people. Bottom: 18–34, activation spread more widely across the scene. Columns: original, predicted-class overlay, predicted-class heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.
+Figure 1. Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Left: 65+, activation on text and people. Right: 18–34, activation spread more widely across the scene. Columns: original, predicted-class overlay, predicted-class heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.
 
 Later analyses follow these localizations. Where activation concentrates on thumbnail text, we measure text area and text–background contrast. Where it concentrates on people, we measure person area and estimated face age. Where it spreads across the scene, we compare captions describing people, actions, objects, and setting.
 
