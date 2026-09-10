@@ -60,11 +60,11 @@ Table B2. Grad-CAM energy by exclusive ROI (top-50 correct; predicted-class heat
 | 18–34 | background | 74.5% | 72.4% | 0.98 | 74.5% |
 
 \paragraph{Faithfulness.}
-Deletion removes pixels in order of Grad-CAM importance and records the drop in predicted probability for the target class. Insertion starts from a blurred image and restores the same pixels in the same order. For the 65+ top-50 correct sample, deletion AUC was .494 and insertion AUC was .725. For the 18–34 top-50 correct sample, deletion AUC was .871 and insertion AUC was .900: predicted probability stayed high even after important regions were removed, which is consistent with evidence spread across the image.
+Deletion removes pixels in order of Grad-CAM importance and records the drop in predicted probability for the target class. Insertion starts from a blurred image and restores the same pixels in the same order. For the 18–34 top-50 correct sample, deletion AUC was .871 and insertion AUC was .900 (Figure B1, top): predicted probability stayed high even after important regions were removed, which is consistent with evidence spread across the image. For the 65+ top-50 correct sample, deletion AUC was .494 and insertion AUC was .725 (Figure B1, bottom).
 
 [Figure B1 here]
 
-Figure B1. Deletion and insertion curves for the top-50 correct samples (left: 65+; right: 18–34).
+Figure B1. Deletion and insertion curves for the top-50 correct samples (top: 18–34; bottom: 65+).
 
 Table B3 repeats the deletion and insertion tests one ROI at a time, using the original overlapping OCR and YOLO boxes (text + person + background can exceed 100%). Deletion masks the ROI and insertion shows only the ROI. delN = (baseline probability - deletion probability) / area; insN = insertion probability / area.
 

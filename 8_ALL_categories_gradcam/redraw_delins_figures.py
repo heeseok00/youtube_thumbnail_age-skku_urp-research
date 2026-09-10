@@ -160,10 +160,10 @@ def save_pair(path, thrs, all_del, all_ins, group_label):
 def save_column(path, thrs, data):
     fig, axes = plt.subplots(4, 1, figsize=(4.4, 12.4))
     specs = [
-        (data["del_65"], "salmon", "red", "Deletion, 65+", "Fraction deleted", (0, 1.02)),
-        (data["ins_65"], "skyblue", "blue", "Insertion, 65+", "Fraction revealed", (0, 1.02)),
         (data["del_34"], "salmon", "red", "Deletion, 18–34", "Fraction deleted", (0, 1.02)),
         (data["ins_34"], "skyblue", "blue", "Insertion, 18–34", "Fraction revealed", None),
+        (data["del_65"], "salmon", "red", "Deletion, 65+", "Fraction deleted", (0, 1.02)),
+        (data["ins_65"], "skyblue", "blue", "Insertion, 65+", "Fraction revealed", (0, 1.02)),
     ]
     for ax, (curves, c1, c2, title, xlabel, ylim) in zip(axes, specs):
         draw_panel(ax, thrs, curves, c1, c2, title, xlabel, ylim=ylim)
@@ -176,10 +176,10 @@ def save_column(path, thrs, data):
 def save_grid(path, thrs, data):
     fig, axes = plt.subplots(2, 2, figsize=(8.6, 7.4))
     specs = [
-        (axes[0, 0], data["del_65"], "salmon", "red", "Deletion, 65+", "Fraction deleted", (0, 1.02)),
-        (axes[0, 1], data["ins_65"], "skyblue", "blue", "Insertion, 65+", "Fraction revealed", (0, 1.02)),
-        (axes[1, 0], data["del_34"], "salmon", "red", "Deletion, 18–34", "Fraction deleted", (0, 1.02)),
-        (axes[1, 1], data["ins_34"], "skyblue", "blue", "Insertion, 18–34", "Fraction revealed", None),
+        (axes[0, 0], data["del_34"], "salmon", "red", "Deletion, 18–34", "Fraction deleted", (0, 1.02)),
+        (axes[0, 1], data["ins_34"], "skyblue", "blue", "Insertion, 18–34", "Fraction revealed", None),
+        (axes[1, 0], data["del_65"], "salmon", "red", "Deletion, 65+", "Fraction deleted", (0, 1.02)),
+        (axes[1, 1], data["ins_65"], "skyblue", "blue", "Insertion, 65+", "Fraction revealed", (0, 1.02)),
     ]
     for ax, curves, c1, c2, title, xlabel, ylim in specs:
         draw_panel(ax, thrs, curves, c1, c2, title, xlabel, ylim=ylim)
