@@ -174,18 +174,29 @@ def save_column(path, thrs, data):
 
 
 def save_grid(path, thrs, data):
-    fig, axes = plt.subplots(2, 2, figsize=(8.6, 7.4))
-    specs = [
-        (axes[0, 0], data["del_34"], "salmon", "red", "Deletion, 18–34", "Fraction deleted", (0, 1.02)),
-        (axes[0, 1], data["ins_34"], "skyblue", "blue", "Insertion, 18–34", "Fraction revealed", None),
-        (axes[1, 0], data["del_65"], "salmon", "red", "Deletion, 65+", "Fraction deleted", (0, 1.02)),
-        (axes[1, 1], data["ins_65"], "skyblue", "blue", "Insertion, 65+", "Fraction revealed", (0, 1.02)),
-    ]
-    for ax, curves, c1, c2, title, xlabel, ylim in specs:
-        draw_panel(ax, thrs, curves, c1, c2, title, xlabel, ylim=ylim)
-    fig.tight_layout(pad=0.6, h_pad=1.2)
-    fig.savefig(path, dpi=220, bbox_inches="tight")
-    plt.close(fig)
+    # Short 2x2 so Table B2 and Figure B1 can share one appendix page.
+    # figsize matches AAAI text width; 9–10pt type stays ≥9pt at width=\textwidth.
+    with plt.rc_context(
+        {
+            "axes.titlesize": 10,
+            "axes.labelsize": 9,
+            "xtick.labelsize": 9,
+            "ytick.labelsize": 9,
+            "legend.fontsize": 9,
+        }
+    ):
+        fig, axes = plt.subplots(2, 2, figsize=(7.0, 2.52), layout="constrained")
+        specs = [
+            (axes[0, 0], data["del_34"], "salmon", "red", "Deletion, 18–34", "Fraction deleted", (0, 1.02)),
+            (axes[0, 1], data["ins_34"], "skyblue", "blue", "Insertion, 18–34", "Fraction revealed", None),
+            (axes[1, 0], data["del_65"], "salmon", "red", "Deletion, 65+", "Fraction deleted", (0, 1.02)),
+            (axes[1, 1], data["ins_65"], "skyblue", "blue", "Insertion, 65+", "Fraction revealed", (0, 1.02)),
+        ]
+        for ax, curves, c1, c2, title, xlabel, ylim in specs:
+            draw_panel(ax, thrs, curves, c1, c2, title, xlabel, ylim=ylim)
+            ax.set_ylabel("Prediction\nprobability")
+        fig.savefig(path, dpi=300, bbox_inches="tight", pad_inches=0.04)
+        plt.close(fig)
     print("Saved", path)
 
 
