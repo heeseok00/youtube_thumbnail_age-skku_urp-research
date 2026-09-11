@@ -35,7 +35,7 @@ CATEGORY_LABEL = {
 }
 CATEGORY_ORDER = ["EDU", "HEALTH", "MEDITATION", "SOCIETY"]
 GROUP_KEY = {"65": "65~", "34": "~34"}
-GROUP_LABEL = {"65": "65+", "34": "~34"}
+GROUP_LABEL = {"65": "65+", "34": "18–34"}
 LABEL_KW = {"fontsize": 15, "fontweight": "bold"}
 ROW_KW = {"fontsize": 17, "fontweight": "bold"}
 
