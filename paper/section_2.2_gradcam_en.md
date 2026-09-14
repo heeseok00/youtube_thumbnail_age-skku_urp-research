@@ -71,6 +71,16 @@ Replace from the B counter reset through the end of Appendix B (before Appendix 
 
 \section{Appendix B. Grad-CAM Implementation, ROI Tables, and Full Grids}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth,height=0.28\textheight,keepaspectratio]{figA3_younger_grid.png}
+\caption{Grad-CAM for correctly classified 18--34 thumbnails (two per category, distinct from Figure~\ref{fig:gradcam}; rows: EDU, HEALTH, LIFESTYLE, SOCIETY). Each pair shows the original thumbnail and the predicted-class overlay.}
+\label{fig:gradcam-younger-grid}
+\includegraphics[width=\columnwidth,height=0.28\textheight,keepaspectratio]{figA2_older_grid.png}
+\caption{Grad-CAM for correctly classified 65+ thumbnails (two per category, distinct from Figure~\ref{fig:gradcam}; rows: EDU, HEALTH, LIFESTYLE, SOCIETY). Each pair shows the original thumbnail and the predicted-class overlay.}
+\label{fig:gradcam-older-grid}
+\end{figure}
+
 \paragraph{Implementation.}
 Grad-CAM was applied to the last Transformer block. CLS and register tokens were dropped and the remaining patch tokens were reshaped into a spatial map. Heatmaps were computed for the predicted class. For qualitative inspection we ranked correctly classified 18--34 and 65+ test images by prediction confidence, kept one image per channel, and used the top 50 in each group. Figure~\ref{fig:gradcam} shows the clearest instance of each group's pattern in that sample: for 65+, the image with the largest combined text and person share of heatmap energy; for 18--34, the image with the most dispersed heatmap, measured as the image fraction needed to accumulate half of the heatmap energy.
 
@@ -119,25 +129,5 @@ Deletion and insertion curves and ROI-level overlapping-box results are reported
 
 \paragraph{Additional Grad-CAM Exemplars.}
 Additional examples from the same channel-deduplicated top-50 samples are shown in Figures~\ref{fig:gradcam-younger-grid} and~\ref{fig:gradcam-older-grid}, with two thumbnails per category that are distinct from Figure~\ref{fig:gradcam}. The 18--34 examples illustrate activation distributed across multiple parts of the scene, whereas the 65+ examples more often show activation around large thumbnail text and people.
-
-% Do not use figure[t] here: it defers B1/B2 and lets Appendix C start beside them.
-\twocolumn[{%
-\centering
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{@{}>{\centering\arraybackslash}p{0.48\textwidth}>{\centering\arraybackslash}p{0.48\textwidth}@{}}
-\includegraphics[width=\linewidth]{figA3_younger_grid.png}
-\captionof{figure}{Grad-CAM for correctly classified 18--34 thumbnails (two per category, distinct from Figure~\ref{fig:gradcam}; rows: EDU, HEALTH, LIFESTYLE, SOCIETY). Each pair shows the original thumbnail and the predicted-class overlay.}
-\label{fig:gradcam-younger-grid}
-&
-\includegraphics[width=\linewidth]{figA2_older_grid.png}
-\captionof{figure}{Grad-CAM for correctly classified 65+ thumbnails (two per category, distinct from Figure~\ref{fig:gradcam}; rows: EDU, HEALTH, LIFESTYLE, SOCIETY). Each pair shows the original thumbnail and the predicted-class overlay.}
-\label{fig:gradcam-older-grid}
-\end{tabular}
-
-\setcounter{figure}{0}
-\setcounter{table}{0}
-\renewcommand{\thefigure}{C\arabic{figure}}
-\renewcommand{\thetable}{C\arabic{table}}
-\section{Appendix C. Continuous Visual Feature Details}
-}]
 ```
+
