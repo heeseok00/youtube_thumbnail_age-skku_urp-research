@@ -1,7 +1,7 @@
 """논문용 Grad-CAM 그림 생성.
 
 본문 Figure 1 : 카테고리당 1장 (원본 / 오버레이 / 히트맵)
-부록 Figure A2, A3 : 카테고리당 3장 (원본 / 오버레이)
+부록 Figure B1, B2 : 카테고리당 2장 (원본 / 오버레이). Figure 1과 겹치는 1순위 사례는 제외.
 
 두 그림 모두 채널 중복을 제거한 정분류 상위 50장에서, 각 집단의 전형적인
 양상이 가장 뚜렷한 사례를 고른다.
@@ -181,10 +181,21 @@ def main():
             OUT_DIR / f"samples_fig1_{group}.csv", index=False, encoding="utf-8-sig"
         )
 
-        app_df = top_per_category(scored, 3)
+        app_df = (
+            top_per_category(scored, 3)
+            .groupby("category", observed=True)
+            .tail(2)
+            .reset_index(drop=True)
+        )
         print(group, "appendix scores:", [f"{s:.2f}" for s in app_df["score"]])
         render_appendix(
-            model, processor, cam, app_df, group, OUT_DIR / f"gradcam_appendix_{group}_12.png"
+            model,
+            processor,
+            cam,
+            app_df,
+            group,
+            OUT_DIR / f"gradcam_appendix_{group}_12.png",
+            per_category=2,
         )
         app_df.to_csv(
             OUT_DIR / f"samples_appendix_{group}_12.csv", index=False, encoding="utf-8-sig"
