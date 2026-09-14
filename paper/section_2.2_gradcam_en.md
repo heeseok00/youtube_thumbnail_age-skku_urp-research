@@ -2,7 +2,7 @@
 
 Appendix letters: A = data collection; B = Grad-CAM; C = visual features; D = semantics; E = textual features; F = lexical visualization.
 
-## 2.2 Locating Age-Discriminative Visual Regions via Grad-CAM
+## 2.2 Locating Regions for Visual Feature Measurement via Grad-CAM
 
 To examine age-associated differences in the visual presentation of YouTube thumbnails, we first sought to identify the image regions that distinguish the two audience groups without relying solely on a predefined set of visual features. We therefore trained a thumbnail-only classifier to distinguish the 18–34 and 65+ groups and applied Grad-CAM (Selvaraju et al. 2017) to explore which image regions contributed to the model's predictions. Grad-CAM visualizes the regions that contribute most strongly to a model's prediction for a given class, allowing us to identify where age-discriminative information appears before conducting detailed visual-feature analysis.
 
