@@ -37,7 +37,13 @@ CATEGORY_ORDER = ["EDU", "HEALTH", "MEDITATION", "SOCIETY"]
 GROUP_KEY = {"65": "65~", "34": "~34"}
 GROUP_LABEL = {"65": "65+", "34": "18–34"}
 LABEL_KW = {"fontsize": 15, "fontweight": "bold"}
+FIG1_LABEL_KW = {"fontsize": 13, "fontweight": "bold"}
 ROW_KW = {"fontsize": 17, "fontweight": "bold"}
+FIG1_COL_TITLES = (
+    "Original thumbnail",
+    "Grad-CAM overlay",
+    "Grad-CAM heatmap",
+)
 
 
 def model_device(model):
@@ -113,9 +119,8 @@ def render_main(model, processor, cam, df, group, save_path):
         strip_axes(*axes[r])
         axes[r, 0].set_ylabel(CATEGORY_LABEL[row["category"]], labelpad=10, **ROW_KW)
         if r == 0:
-            axes[r, 0].set_title("original", **LABEL_KW)
-            axes[r, 1].set_title("Grad-CAM overlay", **LABEL_KW)
-            axes[r, 2].set_title("heatmap", **LABEL_KW)
+            for c, title in enumerate(FIG1_COL_TITLES):
+                axes[r, c].set_title(title, **FIG1_LABEL_KW)
 
     # 컬러바를 별도 축에 그린다. ax=axes[:, 2]로 붙이면 히트맵 열만 좁아진다.
     fig.tight_layout(rect=(0, 0, 0.9, 1))

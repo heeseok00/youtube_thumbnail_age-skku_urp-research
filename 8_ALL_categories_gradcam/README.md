@@ -15,6 +15,8 @@ conda run -n urp_yena python run_gradcam_pipeline.py --stage all
 conda run -n urp_yena python run_gradcam_pipeline.py --stage camshare
 # 논문 그림 (본문 Figure 1 + 부록 Figure A2/A3)
 conda run -n urp_yena python make_paper_figures.py
+# Figure 1 열 이름만 다시 쓰기 (모델 없이 기존 PNG 수정)
+python retitle_fig1.py
 ```
 
 ## 산출물 (`outputs/`)
