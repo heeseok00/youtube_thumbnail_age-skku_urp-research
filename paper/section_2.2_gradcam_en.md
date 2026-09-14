@@ -17,13 +17,13 @@ Do not keep a `figure*` in 2.1. That float jumps to the top of a later page and 
 \centering
 \includegraphics[width=0.48\textwidth]{fig1_younger_gradcam.png}\hfill
 \includegraphics[width=0.48\textwidth]{fig1_older_gradcam.png}
-\captionof{figure}{Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Left: 18--34, activation spread more widely across the scene. Right: 65+, activation on text and people. Columns show the original thumbnail, the Grad-CAM overlay, and the Grad-CAM heatmap alone. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.}
+\captionof{figure}{Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Left: 18--34, activation spread more widely across the scene. Right: 65+, activation concentrated on text and people. Columns: Original thumbnail, Grad-CAM overlay, Grad-CAM heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.}
 \label{fig:gradcam}
 \vspace{0.8ex}
 }]
 ```
 
-Figure 1. Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Left: 18–34, activation spread more widely across the scene. Right: 65+, activation on text and people. Columns show the original thumbnail, the Grad-CAM overlay, and the Grad-CAM heatmap alone. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.
+Figure 1. Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Left: 18–34, activation spread more widely across the scene. Right: 65+, activation concentrated on text and people. Columns: Original thumbnail, Grad-CAM overlay, Grad-CAM heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.
 
 Later analyses follow these localizations. Where activation concentrates on thumbnail text, we measure text area and text–background contrast. Where it concentrates on people, we measure person area and estimated face age. Where it spreads across the scene, we compare captions describing people, actions, objects, and setting.
 
