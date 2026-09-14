@@ -15,15 +15,15 @@ Do not keep a `figure*` in 2.1. That float jumps to the top of a later page and 
 ```latex
 \twocolumn[{%
 \centering
-\includegraphics[width=0.48\textwidth]{fig1_older_gradcam.png}\hfill
-\includegraphics[width=0.48\textwidth]{fig1_younger_gradcam.png}
-\captionof{figure}{Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Left: 65+, activation on text and people. Right: 18--34, activation spread more widely across the scene. Columns: original, predicted-class overlay, predicted-class heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.}
+\includegraphics[width=0.48\textwidth]{fig1_younger_gradcam.png}\hfill
+\includegraphics[width=0.48\textwidth]{fig1_older_gradcam.png}
+\captionof{figure}{Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Left: 18--34, activation spread more widely across the scene. Right: 65+, activation on text and people. Columns: original, predicted-class overlay, predicted-class heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.}
 \label{fig:gradcam}
 \vspace{0.8ex}
 }]
 ```
 
-Figure 1. Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Left: 65+, activation on text and people. Right: 18–34, activation spread more widely across the scene. Columns: original, predicted-class overlay, predicted-class heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.
+Figure 1. Grad-CAM exemplars from correctly classified, channel-deduplicated top-50 cases (one thumbnail per category). Left: 18–34, activation spread more widely across the scene. Right: 65+, activation on text and people. Columns: original, predicted-class overlay, predicted-class heatmap. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.
 
 Later analyses follow these localizations. Where activation concentrates on thumbnail text, we measure text area and text–background contrast. Where it concentrates on people, we measure person area and estimated face age. Where it spreads across the scene, we compare captions describing people, actions, objects, and setting.
 
