@@ -117,20 +117,27 @@ Table~\ref{tab:b2} reports where predicted-class heatmap energy fell on the same
 \paragraph{Faithfulness evaluation.}
 Deletion and insertion curves and ROI-level overlapping-box results are reported in Figure~\ref{fig:faithfulness} and Table~\ref{tab:faithfulness} in Section~2.2. For the deletion test, pixels were removed in descending order of Grad-CAM importance and the predicted probability of the target class was recorded after each removal step. For insertion, the procedure began with a blurred image and restored pixels in the same importance order. ROI-level tests used the original overlapping OCR and YOLO regions: deletion masked a given ROI, whereas insertion retained only that ROI. Because these regions can overlap, their area shares need not sum to 100\%.
 
-\paragraph{Additional exemplars.}
-Additional exemplars from the same channel-deduplicated top-50 samples are shown in Figures~\ref{fig:b1} and~\ref{fig:b2}, with two thumbnails per category that are distinct from Figure~\ref{fig:gradcam}. Figure~\ref{fig:b1} shows correctly classified 18--34 cases, where activation is more widely spread across the scene. Figure~\ref{fig:b2} shows correctly classified 65+ cases, where activation typically lies on large text and on people. Figure~\ref{fig:gradcam} shows one exemplar per category; Figures~\ref{fig:b1} and~\ref{fig:b2} add two further exemplars per category.
+\paragraph{Additional Grad-CAM Exemplars.}
+Additional examples from the same channel-deduplicated top-50 samples are shown in Figures~\ref{fig:gradcam-younger-grid} and~\ref{fig:gradcam-older-grid}, with two thumbnails per category that are distinct from Figure~\ref{fig:gradcam}. The 18--34 examples illustrate activation distributed across multiple parts of the scene, whereas the 65+ examples more often show activation around large thumbnail text and people.
 
-\begin{figure*}[t]
+% Do not use figure[t] here: it defers B1/B2 and lets Appendix C start beside them.
+\twocolumn[{%
 \centering
-\includegraphics[width=\textwidth,height=0.36\textheight,keepaspectratio]{figA3_younger_grid.png}
-\caption{Grad-CAM for correctly classified 18--34 thumbnails (two per category, distinct from Figure~\ref{fig:gradcam}; rows: EDU, HEALTH, LIFESTYLE, SOCIETY). Each pair shows the original thumbnail and the predicted-class overlay.}
-\label{fig:b1}
-\end{figure*}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}>{\centering\arraybackslash}p{0.48\textwidth}>{\centering\arraybackslash}p{0.48\textwidth}@{}}
+\includegraphics[width=\linewidth]{figA3_younger_grid.png}
+\captionof{figure}{Grad-CAM for correctly classified 18--34 thumbnails (two per category, distinct from Figure~\ref{fig:gradcam}; rows: EDU, HEALTH, LIFESTYLE, SOCIETY). Each pair shows the original thumbnail and the predicted-class overlay.}
+\label{fig:gradcam-younger-grid}
+&
+\includegraphics[width=\linewidth]{figA2_older_grid.png}
+\captionof{figure}{Grad-CAM for correctly classified 65+ thumbnails (two per category, distinct from Figure~\ref{fig:gradcam}; rows: EDU, HEALTH, LIFESTYLE, SOCIETY). Each pair shows the original thumbnail and the predicted-class overlay.}
+\label{fig:gradcam-older-grid}
+\end{tabular}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth,height=0.36\textheight,keepaspectratio]{figA2_older_grid.png}
-\caption{Grad-CAM for correctly classified 65+ thumbnails (two per category, distinct from Figure~\ref{fig:gradcam}; rows: EDU, HEALTH, LIFESTYLE, SOCIETY). Each pair shows the original thumbnail and the predicted-class overlay.}
-\label{fig:b2}
-\end{figure*}
+\setcounter{figure}{0}
+\setcounter{table}{0}
+\renewcommand{\thefigure}{C\arabic{figure}}
+\renewcommand{\thetable}{C\arabic{table}}
+\section{Appendix C. Continuous Visual Feature Details}
+}]
 ```
